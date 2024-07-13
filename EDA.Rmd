@@ -6,7 +6,13 @@ date: "2024-07-07"
 
 # Setting up
 
-This first chunk installs necessary packages.
+This first chunk installs necessary packages. In the next code chunk, you will find the command to change the working directory. After you clone your repo, you will need to run this command ONCE. Do not push this change! Better to do it on the console and not change this code block
+
+```{r}
+# This command sets the wd for the R project
+# setwd("/Users/bernardocarvalho/Desktop/imperial_repos/health_care_analytics_group")
+```
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -243,22 +249,71 @@ data$hours_wke_from_m <- ifelse(data$INTWKENM < 20, 0, 1)
 ```
 
 Next, we look at the number of hours spend per week 
+
+```{r}
+ggplot(filtered_data, aes(x = INTWKDYH)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Hours", y = "Count") +
+  theme_minimal()
+
+```
+
+
+```{r}
+ggplot(filtered_data, aes(x = INTWKENH)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekends", x = "Hours", y = "Count") +
+  theme_minimal()
+```
+
+In order to simplify the model, we will create a new variable that combines the total time spent on social media
+
+```{r}
+# Total time spent on the internet per week
+data$total_internet_time <- data$hours_wkd_from_m + data$hours_wke_from_m + data$INTWKENH + data$INTWKDYH
+
+# Plot total internet usage time per week
+ggplot(data, aes(x = total_internet_time)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekends", x = "Hours", y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+#    , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
+
+# Create a bar plot using ggplot2
+ggplot(data, aes(x = SNSMYEAR)) +
+  geom_bar(fill = "skyblue") +
+  labs(title = "Count of Categories", x = "Category", y = "Count") +
+  theme_minimal()
+```
+
+
 # Modeling
 
 ```{r}
-ols_2006 = lm(
+data$flg_is_male <- ifelse(data$SEX == 1,1,0)
+```
+
+
+```{r}
+ols1 = lm(
   MNTLHLTH
-  ~ SEX
-  + RACE
+  ~ RACE
   + BORN
   + REGION
+  + WRKSTAT  # LABOR FORCE STATUS
+  + HRS1     # NUMBER OF HOURS WORKED LAST WEEK
+  + INCOME16 # TOTAL FAMILY INCOME
+  + RINCOM16 # Respondant's income
   + SNSMOTH1
-  + INTWKDYH
-  + INTWKENH
+  + total_internet_time*flg_is_male
+  + SNSMYEAR
   # 2006 Regression
-  , data=filtered_data)
+  , data=data)
 
-stargazer(ols_2006,
+stargazer(ols1,
           type="text",
           single.row = TRUE,
           header = FALSE,
