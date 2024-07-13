@@ -63,8 +63,17 @@ sliced_data <- raw_data %>%
     , BYEMPROB #  HOW MANY FRIENDS DISCUSS PROBLEMS VIA EMAIL
     , INTACCSS #  DOES R HAVE INTERNET THROUGH CELL PHONE OR PDA
     , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
+    , WEIGHT   # Weight
+    , HEIGHT   # R IS HOW TALL
+    , LIFENOW  # R'S RATING OF LIFE OVERALL NOW FROM 0-10
+    , DEPRESS  # TOLD HAVE DEPRESSION
+    , HLTHPHYS # R'S PHYSICAL HEALTH
+    , QUALLIFE # R'S QUALITY OF LIFE
+    , HLTHMNTL # R'S MENTAL HEALTH, MOOD, AND ABILITY TO THINK.           
+    
     # Then, control variables
     , YEAR     # GSS YEAR FOR THIS RESPONDENT
+    
       # Labour
     , ID       # RESPONDENT ID NUMBER
     , WRKSTAT  # LABOR FORCE STATUS
@@ -288,6 +297,23 @@ ggplot(data, aes(x = SNSMYEAR)) +
   labs(title = "Count of Categories", x = "Category", y = "Count") +
   theme_minimal()
 ```
+Next, we plot the count of RACE responses from the survey
+
+```{r}
+# Create a bar plot using ggplot2
+ggplot(data, aes(x = RACE)) +
+  geom_bar(fill = "skyblue") +
+  labs(title = "Count of Categories - Race", x = "Category", y = "Count") +
+  theme_minimal()
+```
+We see that approximately 80% of the respondents are white. Therefore, we will create an auxiliary dummy variable for "is white" and use it as an iteration term
+
+```{r}
+
+# Creating dummy variable for "white"
+data$flg_is_white <- ifelse(data$RACE == 1, 1, 0)
+
+```
 
 
 # Modeling
@@ -300,17 +326,15 @@ data$flg_is_male <- ifelse(data$SEX == 1,1,0)
 ```{r}
 ols1 = lm(
   MNTLHLTH
-  ~ RACE
-  + BORN
+  ~ BORN
   + REGION
   + WRKSTAT  # LABOR FORCE STATUS
   + HRS1     # NUMBER OF HOURS WORKED LAST WEEK
   + INCOME16 # TOTAL FAMILY INCOME
   + RINCOM16 # Respondant's income
-  + SNSMOTH1
-  + total_internet_time*flg_is_male
-  + SNSMYEAR
-  # 2006 Regression
+  + SNSMOTH1 # DO YOU USE ANY OTHER SOCIAL NETWORKS
+  + total_internet_time*flg_is_male*flg_is_white
+  + SNSMYEAR # SNSMYEAR
   , data=data)
 
 stargazer(ols1,
