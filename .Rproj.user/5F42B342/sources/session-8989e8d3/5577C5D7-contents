@@ -201,6 +201,48 @@ ggplot(filtered_data, aes(x = MNTLHLTH)) +
 
 # EDA
 
+We start our exploration by looking at the amount of minutes spent on internet. We want to understand if that is a complement to the hoursof internet usage. We start by plotting the histogram:
+
+```{r}
+
+#    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
+#    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
+#    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
+#    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
+
+ggplot(filtered_data, aes(x = INTWKDYM)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Minutes", y = "Count") +
+  theme_minimal()
+```
+Same for weekends
+
+```{r}
+
+#    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
+#    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
+#    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
+#    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
+
+ggplot(filtered_data, aes(x = INTWKENM)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Minutes", y = "Count") +
+  theme_minimal()
+```
+As the range is always capped at 60, our assumption is that this is either a complement to the number of hours or applicable when respondents do not spend even 1 hour using the internet per week. For simplicity of analysis and since we are interested in the relantionship between the total amount of time spent per week on social media, we will create a new variable that returns 1 if the number of minutes spent is >= 20 minutes and simply round to zero otherwise. This will also take care of the duplicates
+
+```{r}
+data <- filtered_data
+
+# Create new column based on minutes per week
+data$hours_wkd_from_m <- ifelse(data$INTWKDYM < 20, 0, 1)
+
+# Create new column based on minutes per weekend
+data$hours_wke_from_m <- ifelse(data$INTWKENM < 20, 0, 1)
+
+```
+
+Next, we look at the number of hours spend per week 
 # Modeling
 
 ```{r}
@@ -210,6 +252,9 @@ ols_2006 = lm(
   + RACE
   + BORN
   + REGION
+  + SNSMOTH1
+  + INTWKDYH
+  + INTWKENH
   # 2006 Regression
   , data=filtered_data)
 

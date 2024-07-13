@@ -4,7 +4,10 @@ output: html_document
 date: "2024-07-07"
 ---
 
+# Setting up
+
 This first chunk installs necessary packages.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 install.packages("haven")
@@ -27,6 +30,8 @@ file = "gss_spss_with_codebook/GSS7218_R3.sav"
 # Read the data file
 raw_data <- read_sav(file)
 ```
+
+# Data cleaning
 
 By inspecting the codebook, we selected the following variables to take a closed look at (i.e: Our control variables)
 
@@ -85,6 +90,7 @@ ggplot(raw_data, aes(x = YEAR)) +
   theme_minimal()
 
 ```
+
 We see that it has a similar level of responses to the other years so there are no concerns with regards to the availability of the data.
 
 ```{r}
@@ -98,7 +104,7 @@ Next let's check for missing variables
 vis_miss(filtered_data)
 ```
 
-We assume the variables where 100% of the data is missing to be not present in the latest version of the survey. Therefore we remove them from the target variables:
+We assume the variables where 100% of the data is missing to be not present in the latest version of the survey. Therefore we remove them from the target variables. We also removed the "Number of hours worked last week" because there is already a similar question in the codebook and for this variable 98% of the data is missing. Same was done for SNSMOT2A:
 
 ```{r}
 sliced_data <- filtered_data %>%
@@ -106,7 +112,6 @@ sliced_data <- filtered_data %>%
     # First, start with Mental health related variables
     # These are the Health variables
     SNSMOTH1   # DO YOU USE ANY OTHER SOCIAL NETWORKS
-    , SNSMOT2A #  FIRST OTHER SOCIAL NETWORK
     , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
     , SNSMYEAR #  YEAR FIRST JOINED SNS
     , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
@@ -121,7 +126,6 @@ sliced_data <- filtered_data %>%
     , ID       # RESPONDENT ID NUMBER
     , WRKSTAT  # LABOR FORCE STATUS
     , HRS1     # NUMBER OF HOURS WORKED LAST WEEK
-    , HRS2     # NUMBER OF HOURS USUALLY WORK A WEEK
     , 
     , # Social
     , SEX     # RESPONDENTS SEX
@@ -139,3 +143,124 @@ sliced_data <- filtered_data %>%
 vis_miss(sliced_data)
 ```
 
+Our selected dependent variable has only 62% of the data present. We try to investigate further it there is some pattern to the missing data. We immediately observe that the questions about social media usage were not present prior to 2016, as their missing values match perfectly with the ones to the income question. We can validate this assumtion by counting the non-na values in 2016. Therefore, to use this variables we will need to keep the timeframe restricted to 2016
+
+```{r}
+# Filtering the data again
+filtered_data <- sliced_data %>%
+  filter(YEAR == 2016)
+
+#Slicing the data again
+sliced_data <- filtered_data %>%
+  select(
+    # First, start with Mental health related variables
+    # These are the Health variables
+    SNSMOTH1   # DO YOU USE ANY OTHER SOCIAL NETWORKS
+    , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
+    , SNSMYEAR #  YEAR FIRST JOINED SNS
+    , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
+    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
+    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
+    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
+    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
+    , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
+    # Then, control variables
+    , YEAR     # GSS YEAR FOR THIS RESPONDENT
+      # Labour
+    , ID       # RESPONDENT ID NUMBER
+    , WRKSTAT  # LABOR FORCE STATUS
+    , HRS1     # NUMBER OF HOURS WORKED LAST WEEK
+    , 
+    , # Social
+    , SEX     # RESPONDENTS SEX
+    , RACE    # RACE OF RESPONDENT
+    , BORN    # WAS R BORN IN THIS COUNTRY
+    , REGION   # REGION OF INTERVIEW
+    , INCOME16 # TOTAL FAMILY INCOME
+    , RINCOM16 # RESPONDENTS INCOME
+  )
+```
+
+
+```{r}
+gg_miss_upset(sliced_data, nsets = 10, nintersects = 50)
+```
+By inspecting the upset vizualition, we could not find any significant pattern with the dependent variable. Therefore, we will simply drop the na's from consideration
+
+```{r}
+# Drop NA's and the no answers: IAP, DONT KNOW and NO ANSWER values
+filtered_data <- filtered_data %>%
+  filter(!is.na(MNTLHLTH) & !MNTLHLTH %in% c(-1, 98, 99))
+
+ggplot(filtered_data, aes(x = MNTLHLTH)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of days with poor mental health", x = "Number of days with poor mental health", y = "Count") +
+  theme_minimal()
+```
+
+
+# EDA
+
+We start our exploration by looking at the amount of minutes spent on internet. We want to understand if that is a complement to the hoursof internet usage. We start by plotting the histogram:
+
+```{r}
+
+#    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
+#    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
+#    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
+#    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
+
+ggplot(filtered_data, aes(x = INTWKDYM)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Minutes", y = "Count") +
+  theme_minimal()
+```
+Same for weekends
+
+```{r}
+
+#    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
+#    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
+#    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
+#    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
+
+ggplot(filtered_data, aes(x = INTWKENM)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Minutes", y = "Count") +
+  theme_minimal()
+```
+As the range is always capped at 60, our assumption is that this is either a complement to the number of hours or applicable when respondents do not spend even 1 hour using the internet per week. For simplicity of analysis and since we are interested in the relantionship between the total amount of time spent per week on social media, we will create a new variable that returns 1 if the number of minutes spent is >= 20 minutes and simply round to zero otherwise. This will also take care of the duplicates
+
+```{r}
+data <- filtered_data
+
+# Create new column based on minutes per week
+data$hours_wkd_from_m <- ifelse(data$INTWKDYM < 20, 0, 1)
+
+# Create new column based on minutes per weekend
+data$hours_wke_from_m <- ifelse(data$INTWKENM < 20, 0, 1)
+
+```
+
+Next, we look at the number of hours spend per week 
+# Modeling
+
+```{r}
+ols_2006 = lm(
+  MNTLHLTH
+  ~ SEX
+  + RACE
+  + BORN
+  + REGION
+  + SNSMOTH1
+  + INTWKDYH
+  + INTWKENH
+  # 2006 Regression
+  , data=filtered_data)
+
+stargazer(ols_2006,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Simple regression - No changes")
+```
