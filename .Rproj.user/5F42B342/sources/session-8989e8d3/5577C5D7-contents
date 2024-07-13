@@ -4,26 +4,218 @@ output: html_document
 date: "2024-07-07"
 ---
 
+# Setting up
+
+This first chunk installs necessary packages.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+install.packages("haven")
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(haven)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(stargazer)
+library(stringr)
+library(naniar)
 ```
 
-## Including Plots
+```{r}
+# Change this if you saves the file in a different path
+file = "gss_spss_with_codebook/GSS7218_R3.sav"
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Read the data file
+raw_data <- read_sav(file)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Data cleaning
+
+By inspecting the codebook, we selected the following variables to take a closed look at (i.e: Our control variables)
+
+```{r}
+# Selecting candidate variables
+
+sliced_data <- raw_data %>%
+  select(
+    # First, start with Mental health related variables
+    # These are the Health variables
+    SNSMOTH1   # DO YOU USE ANY OTHER SOCIAL NETWORKS
+    , SNSMOT2A #  FIRST OTHER SOCIAL NETWORK
+    , SNSMOT2B #  SECOND OTHER SOCIAL NETWORK
+    , SNSMOT2C #  THIRD OTHER SOCIAL NETWORK
+    , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
+    , SNSMYEAR #  YEAR FIRST JOINED SNS
+    , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
+    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
+    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
+    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
+    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
+    , NUMPROBS #  HOW MANY FRIENDS CLOSE TO DISCUSS PROBLEMS
+    , BYEMPROB #  HOW MANY FRIENDS DISCUSS PROBLEMS VIA EMAIL
+    , INTACCSS #  DOES R HAVE INTERNET THROUGH CELL PHONE OR PDA
+    , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
+    # Then, control variables
+    , YEAR     # GSS YEAR FOR THIS RESPONDENT
+      # Labour
+    , ID       # RESPONDENT ID NUMBER
+    , WRKSTAT  # LABOR FORCE STATUS
+    , HRS1     # NUMBER OF HOURS WORKED LAST WEEK
+    , HRS2     # NUMBER OF HOURS USUALLY WORK A WEEK
+    , COMMUTE  # TRAVEL TIME TO WORK
+    , 
+    , # Social
+    , SEX     # RESPONDENTS SEX
+    , RACE    # RACE OF RESPONDENT
+    , BORN    # WAS R BORN IN THIS COUNTRY
+    , REGION   # REGION OF INTERVIEW
+    , INCOME06 # TOTAL FAMILY INCOME
+    , RINCOM06 # RESPONDENTS INCOME
+    , INCOME16 # TOTAL FAMILY INCOME
+    , RINCOM16 # RESPONDENTS INCOME
+  )
+
+```
+
+Since we are interested in the impact of social media usage on people's metal health (perceived), we will limit the scope of the data to the responses from 2006 and 2016
+
+```{r}
+
+# Plot bar plot for 'Exercise' variable
+ggplot(raw_data, aes(x = YEAR)) +
+  geom_bar() +
+  labs(title = "Number of reponses by year", x = "Year", y = "Count") +
+  theme_minimal()
+
+```
+
+We see that it has a similar level of responses to the other years so there are no concerns with regards to the availability of the data.
+
+```{r}
+filtered_data <- sliced_data %>%
+  filter(YEAR %in% c(2006, 2016))
+```
+
+Next let's check for missing variables
+
+```{r}
+vis_miss(filtered_data)
+```
+
+We assume the variables where 100% of the data is missing to be not present in the latest version of the survey. Therefore we remove them from the target variables. We also removed the "Number of hours worked last week" because there is already a similar question in the codebook and for this variable 98% of the data is missing. Same was done for SNSMOT2A:
+
+```{r}
+sliced_data <- filtered_data %>%
+  select(
+    # First, start with Mental health related variables
+    # These are the Health variables
+    SNSMOTH1   # DO YOU USE ANY OTHER SOCIAL NETWORKS
+    , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
+    , SNSMYEAR #  YEAR FIRST JOINED SNS
+    , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
+    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
+    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
+    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
+    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
+    , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
+    # Then, control variables
+    , YEAR     # GSS YEAR FOR THIS RESPONDENT
+      # Labour
+    , ID       # RESPONDENT ID NUMBER
+    , WRKSTAT  # LABOR FORCE STATUS
+    , HRS1     # NUMBER OF HOURS WORKED LAST WEEK
+    , 
+    , # Social
+    , SEX     # RESPONDENTS SEX
+    , RACE    # RACE OF RESPONDENT
+    , BORN    # WAS R BORN IN THIS COUNTRY
+    , REGION   # REGION OF INTERVIEW
+    , INCOME06 # TOTAL FAMILY INCOME
+    , RINCOM06 # RESPONDENTS INCOME
+    , INCOME16 # TOTAL FAMILY INCOME
+    , RINCOM16 # RESPONDENTS INCOME
+  )
+```
+
+```{r}
+vis_miss(sliced_data)
+```
+
+Our selected dependent variable has only 62% of the data present. We try to investigate further it there is some pattern to the missing data. We immediately observe that the questions about social media usage were not present prior to 2016, as their missing values match perfectly with the ones to the income question. We can validate this assumtion by counting the non-na values in 2016. Therefore, to use this variables we will need to keep the timeframe restricted to 2016
+
+```{r}
+# Filtering the data again
+filtered_data <- sliced_data %>%
+  filter(YEAR == 2016)
+
+#Slicing the data again
+sliced_data <- filtered_data %>%
+  select(
+    # First, start with Mental health related variables
+    # These are the Health variables
+    SNSMOTH1   # DO YOU USE ANY OTHER SOCIAL NETWORKS
+    , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
+    , SNSMYEAR #  YEAR FIRST JOINED SNS
+    , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
+    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
+    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
+    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
+    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
+    , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
+    # Then, control variables
+    , YEAR     # GSS YEAR FOR THIS RESPONDENT
+      # Labour
+    , ID       # RESPONDENT ID NUMBER
+    , WRKSTAT  # LABOR FORCE STATUS
+    , HRS1     # NUMBER OF HOURS WORKED LAST WEEK
+    , 
+    , # Social
+    , SEX     # RESPONDENTS SEX
+    , RACE    # RACE OF RESPONDENT
+    , BORN    # WAS R BORN IN THIS COUNTRY
+    , REGION   # REGION OF INTERVIEW
+    , INCOME16 # TOTAL FAMILY INCOME
+    , RINCOM16 # RESPONDENTS INCOME
+  )
+```
+
+
+```{r}
+gg_miss_upset(sliced_data, nsets = 10, nintersects = 50)
+```
+By inspecting the upset vizualition, we could not find any significant pattern with the dependent variable. Therefore, we will simply drop the na's from consideration
+
+```{r}
+# Drop NA's and the no answers: IAP, DONT KNOW and NO ANSWER values
+filtered_data <- filtered_data %>%
+  filter(!is.na(MNTLHLTH) & !MNTLHLTH %in% c(-1, 98, 99))
+
+ggplot(filtered_data, aes(x = MNTLHLTH)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of days with poor mental health", x = "Number of days with poor mental health", y = "Count") +
+  theme_minimal()
+```
+
+
+# EDA
+
+# Modeling
+
+```{r}
+ols_2006 = lm(
+  MNTLHLTH
+  ~ SEX
+  + RACE
+  + BORN
+  + REGION
+  # 2006 Regression
+  , data=filtered_data)
+
+stargazer(ols_2006,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Simple regression - No changes")
+```
