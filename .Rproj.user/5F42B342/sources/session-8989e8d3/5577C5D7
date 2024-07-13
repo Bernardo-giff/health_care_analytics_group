@@ -3,9 +3,9 @@
     "path": "~/Desktop/imperial_repos/health_care_analytics_group/EDA.Rmd",
     "project_path": "EDA.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "141638241",
     "contents": "",
-    "dirty": true,
+    "dirty": false,
     "created": 1720359222150.0,
     "source_on_save": false,
     "relative_order": 1,
@@ -13,15 +13,16 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "9,0",
-        "scrollLine": "0"
+        "cursorPosition": "140,0",
+        "scrollLine": "133",
+        "last_setup_crc32": "8989e8d3dea45f0e"
     },
     "folds": "",
-    "lastKnownWriteTime": 1720359235,
+    "lastKnownWriteTime": 1720876632,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1720380179081,
+    "last_content_update": 1720876632647,
     "read_only": false,
     "read_only_alternatives": []
 }
