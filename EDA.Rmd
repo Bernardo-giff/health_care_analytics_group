@@ -105,7 +105,8 @@ sliced_data <- raw_data %>%
     , JOBKEEP #JOB SECURITY
     , JOBSEC #NO DANGER OF BEING FIRED //// Both job sec var have most missing values 
     , WRKSTAT #LABOR FORCE STATUS
-    , 
+    , SPWRKSTA #SPOUSE LABOR FORCE STATUS
+    , MARITAL #MARITAL STATUS
   )
 
 ```
