@@ -43,11 +43,17 @@ file = "gss_spss_with_codebook/GSS7218_R3.sav"
 raw_data <- read_sav(file)
 ```
 
+After inspecting the variables of the codebook, it became clear to us that we could only use the wave from 2016. Although some of the respondants can be repeated through waves, it is a random sample. Therefore, we will filter the data by the year 2026.
 
 ```{r}
-data_2016 <- raw_data %>%
+# Filtering data for only 2016
+data <- raw_data %>%
   filter(YEAR == 2016)
+```
 
+There are hundreads of variables in the dataset. However, several of them are not available in the 2016 dataset. Therefore, we will inspect the variables avaiable were at least 40% of the data is present.
+
+```{r}
 # Calculate the total number of rows in the dataframe
 total_rows <- nrow(data_2016)
 
@@ -55,11 +61,13 @@ total_rows <- nrow(data_2016)
 non_na_percentage <- colSums(!is.na(data_2016)) / total_rows
 
 # Identify columns with more than 10% non-NA values
-columns_with_more_than_10_percent_non_na <- names(non_na_percentage[non_na_percentage > 0.40])
+columns_with_more_than_40_percent_non_na <- names(non_na_percentage[non_na_percentage > 0.40])
 
 # Print the column names
-print(columns_with_more_than_10_percent_non_na)
+print(columns_with_more_than_40_percent_non_na)
 ```
+
+After this initial set up, we can start cleaning up the data.
 
 # Data cleaning
 
@@ -68,27 +76,18 @@ By inspecting the codebook, we selected the following variables to take a closed
 ```{r}
 # Selecting candidate variables
 
-sliced_data <- raw_data %>%
+data <- data %>%
   select(
     # First, start with Mental health related variables
     # These are the Health variables
     SNSMOTH1   # DO YOU USE ANY OTHER SOCIAL NETWORKS
-    #, SNSMOT2A #  FIRST OTHER SOCIAL NETWORK
-    #, SNSMOT2B #  SECOND OTHER SOCIAL NETWORK
-    #, SNSMOT2C #  THIRD OTHER SOCIAL NETWORK
-    # , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
-    # , SNSMYEAR #  YEAR FIRST JOINED SNS
-    # , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
     , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
     , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
     , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
     , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
-    #, NUMPROBS #  HOW MANY FRIENDS CLOSE TO DISCUSS PROBLEMS
-    #, BYEMPROB #  HOW MANY FRIENDS DISCUSS PROBLEMS VIA EMAIL
-    # , INTACCSS #  DOES R HAVE INTERNET THROUGH CELL PHONE OR PDA
     , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
-    #, WEIGHT   # Weight
-    #, HEIGHT   # R IS HOW TALL
+    , WEIGHT   # Weight
+    , HEIGHT   # R IS HOW TALL
     #, LIFENOW  # R'S RATING OF LIFE OVERALL NOW FROM 0-10
     #, DEPRESS  # TOLD HAVE DEPRESSION
     #, HLTHPHYS # R'S PHYSICAL HEALTH
@@ -102,7 +101,6 @@ sliced_data <- raw_data %>%
     
     # Then, control variables
     , YEAR     # GSS YEAR FOR THIS RESPONDENT
-    
       # Labour
     , ID       # RESPONDENT ID NUMBER
     , WRKSTAT  # LABOR FORCE STATUS
@@ -124,8 +122,6 @@ sliced_data <- raw_data %>%
     , MAEDUC   # HIGHEST YEAR SCHOOL COMPLETED, MOTHER
     , SEXSEX   # Sex of sex partners in the last year
     , PRES16   # How voted for (i.e: liberal or not)
-    , 
-    
     # New Variables to consider
     , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
     , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED                                      
@@ -426,6 +422,31 @@ We see that approximately 80% of the respondents are white. Therefore, we will c
 # Creating dummy variable for "white"
 data$flg_is_white <- ifelse(data$RACE == 1, 1, 0)
 
+```
+
+
+## Social media - Known sns
+At this stage, we will use the binary variables that indicate if the respondent has used any of the social networks.
+
+```{r}
+
+df <- filtered_data %>%
+  select(
+    TWITTER
+    , LINKEDIN
+    , SNAPCHAT
+    , INSTAGRM
+    , FACEBOOK
+  )
+
+# Assuming your data frame is named df
+
+# Count the number of 1s in each column
+counts <- colSums(df == 1)
+
+# Plot the counts
+barplot(counts, main="Count of 1s for each Social Media Platform", 
+        xlab="Platform", ylab="Count of 1s", col="blue")
 ```
 
 
