@@ -102,7 +102,10 @@ sliced_data <- raw_data %>%
     , DRINK #EVER DRINK ALCOHOLIC BEVERAGES?
     , SLPPRBLM #TROUBLE SLEEPING LAST 12 MONTHS
     , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED
-    
+    , JOBKEEP #JOB SECURITY
+    , JOBSEC #NO DANGER OF BEING FIRED //// Both job sec var have most missing values 
+    , WRKSTAT #LABOR FORCE STATUS
+    , 
   )
 
 ```
