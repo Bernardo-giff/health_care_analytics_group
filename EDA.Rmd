@@ -188,17 +188,17 @@ sliced_data <- filtered_data %>%
     
     # New Variables to consider
     , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
-    , HEALTH1 #R'S HEALTH IN GENERAL
-    , HLTHCOVR #R HAS HEALTH INSURANCE COVERAGE
-    , HLTHINSR #HAVE HEALTH INSURANCE
-    , MNTLDIF #HOW DIFFICULT TO GET MENTAL HEALTH CARE
-    , MHTREATD #R EVER TREATED FOR MH PROBLEM
-    , SMOKE #DOES R SMOKE
-    , DRINK #EVER DRINK ALCOHOLIC BEVERAGES?
-    , SLPPRBLM #TROUBLE SLEEPING LAST 12 MONTHS
-    , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED
-    , JOBKEEP #JOB SECURITY
-    , JOBSEC #NO DANGER OF BEING FIRED //// Both job sec var have most missing values 
+    #, HEALTH1 #R'S HEALTH IN GENERAL                                                           Too many NAS
+    #, HLTHCOVR #R HAS HEALTH INSURANCE COVERAGE                                                Too many NAS
+    #, HLTHINSR #HAVE HEALTH INSURANCE                                                          Too many NAS
+    #, MNTLDIF #HOW DIFFICULT TO GET MENTAL HEALTH CARE                                         Too many NAS
+    #, MHTREATD #R EVER TREATED FOR MH PROBLEM                                                  Too many NAS
+    #, SMOKE #DOES R SMOKE                                                                      Too many NAS
+    #, DRINK #EVER DRINK ALCOHOLIC BEVERAGES?                                                   Too many NAS
+    #, SLPPRBLM #TROUBLE SLEEPING LAST 12 MONTHS                                                Too many NAS
+    , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED                                      
+    #, JOBKEEP #JOB SECURITY                                                                    Too many NAS
+    #, JOBSEC #NO DANGER OF BEING FIRED                                                         Too many NAS
     , SPWRKSTA #SPOUSE LABOR FORCE STATUS
     , MARITAL #MARITAL STATUS
   )
@@ -264,19 +264,19 @@ sliced_data <- filtered_data %>%
     , INCOME16 # TOTAL FAMILY INCOME
     , RINCOM16 # RESPONDENTS INCOME
     
-    # New Variables to consider
+     # New Variables to consider
     , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
-    , HEALTH1 #R'S HEALTH IN GENERAL
-    , HLTHCOVR #R HAS HEALTH INSURANCE COVERAGE
-    , HLTHINSR #HAVE HEALTH INSURANCE
-    , MNTLDIF #HOW DIFFICULT TO GET MENTAL HEALTH CARE
-    , MHTREATD #R EVER TREATED FOR MH PROBLEM
-    , SMOKE #DOES R SMOKE
-    , DRINK #EVER DRINK ALCOHOLIC BEVERAGES?
-    , SLPPRBLM #TROUBLE SLEEPING LAST 12 MONTHS
-    , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED
-    , JOBKEEP #JOB SECURITY
-    , JOBSEC #NO DANGER OF BEING FIRED //// Both job sec var have most missing values 
+    #, HEALTH1 #R'S HEALTH IN GENERAL                                                           Too many NAS
+    #, HLTHCOVR #R HAS HEALTH INSURANCE COVERAGE                                                Too many NAS
+    #, HLTHINSR #HAVE HEALTH INSURANCE                                                          Too many NAS
+    #, MNTLDIF #HOW DIFFICULT TO GET MENTAL HEALTH CARE                                         Too many NAS
+    #, MHTREATD #R EVER TREATED FOR MH PROBLEM                                                  Too many NAS
+    #, SMOKE #DOES R SMOKE                                                                      Too many NAS
+    #, DRINK #EVER DRINK ALCOHOLIC BEVERAGES?                                                   Too many NAS
+    #, SLPPRBLM #TROUBLE SLEEPING LAST 12 MONTHS                                                Too many NAS
+    , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED                                      
+    #, JOBKEEP #JOB SECURITY                                                                    Too many NAS
+    #, JOBSEC #NO DANGER OF BEING FIRED                                                         Too many NAS
     , SPWRKSTA #SPOUSE LABOR FORCE STATUS
     , MARITAL #MARITAL STATUS
   )
