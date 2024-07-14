@@ -90,9 +90,15 @@ sliced_data <- raw_data %>%
     , RINCOM06 # RESPONDENTS INCOME
     , INCOME16 # TOTAL FAMILY INCOME
     , RINCOM16 # RESPONDENTS INCOME
+    
+    # New Variables to consider
+    , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
+    
+    
   )
 
 ```
+
 
 Since we are interested in the impact of social media usage on people's metal health (perceived), we will limit the scope of the data to the responses from 2006 and 2016
 
