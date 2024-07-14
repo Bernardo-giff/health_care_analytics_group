@@ -427,6 +427,105 @@ data$flg_is_white <- ifelse(data$RACE == 1, 1, 0)
 ```
 
 
+#EDA (New)
+
+Let's quickly have a look at ID and make sure there are no duplicates/NAs
+```{r}
+#Check for NAs
+missing_id <- sum(is.na(filtered_data$ID))
+print(paste("Number of missing ID values:", missing_id))
+
+#Checking for duplicates
+duplicate_id <- sum(duplicated(filtered_data$ID))
+print(paste("Number of duplicate ID values:", duplicate_id))
+
+#Summary of Variable
+summary(filtered_data$ID)
+```
+
+Moving on to the employment status (WRKSTAT), we do the following.
+```{r}
+# Check the type of WRKSTAT
+wrkstat_type <- typeof(filtered_data$WRKSTAT)
+print(paste("Type of WRKSTAT:", wrkstat_type))
+
+# Check for missing values in WRKSTAT
+missing_wrkstat <- sum(is.na(filtered_data$WRKSTAT))
+print(paste("Number of missing WRKSTAT values:", missing_wrkstat))
+
+```
+
+
+We need to change convert it to a factor so we do the following
+```{r}
+# Check the labels of WRKSTAT
+wrkstat_labels <- attr(filtered_data$WRKSTAT, "labels")
+print("Labels of WRKSTAT:")
+print(wrkstat_labels)
+
+# Convert WRKSTAT to factor
+filtered_data$WRKSTAT <- as_factor(filtered_data$WRKSTAT)
+
+# Verify the conversion
+print(levels(filtered_data$WRKSTAT))
+```
+
+We look at the distribution of it
+```{r}
+# Distribution of WRKSTAT variable
+wrkstat_distribution <- table(filtered_data$WRKSTAT)
+print("Distribution of WRKSTAT values:")
+print(wrkstat_distribution)
+
+# Visualize the distribution of WRKSTAT with color
+ggplot(filtered_data, aes(x = WRKSTAT, fill = WRKSTAT)) +
+  geom_bar() +
+  labs(title = "Distribution of WRKSTAT", x = "Labor Force Status", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_brewer(palette = "Set3") +
+  theme_minimal()
+
+```
+
+We can combine categories as follows and get rid of NAs
+```{r}
+# Remove rows with NA in WRKSTAT
+filtered_data <- filtered_data[!is.na(filtered_data$WRKSTAT), ]
+
+# Re-categorize WRKSTAT, combining "Other" with "Unemployed"
+filtered_data$WRKSTAT <- recode(
+  filtered_data$WRKSTAT,
+  `WORKING FULLTIME` = "Employed",
+  `WORKING PARTTIME` = "Employed",
+  `UNEMPL, LAID OFF` = "Unemployed",
+  `TEMP NOT WORKING` = "Unemployed",
+  `RETIRED` = "Retired",
+  `SCHOOL` = "Student",
+  `KEEPING HOUSE` = "Homemaker",
+  `OTHER` = "Unemployed"
+)
+
+# Verify the new categories
+print(table(filtered_data$WRKSTAT))
+
+# Visualize the re-categorized distribution of WRKSTAT with color
+ggplot(filtered_data, aes(x = WRKSTAT, fill = WRKSTAT)) +
+  geom_bar() +
+  labs(title = "Re-Categorized Distribution of WRKSTAT", x = "Labor Force Status", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_brewer(palette = "Set3") +
+  theme_minimal()
+
+
+```
+
+Moving on to 
+
+
+
+
+
+
 # Modeling
 
 ```{r}
