@@ -71,27 +71,27 @@ sliced_data <- raw_data %>%
     # First, start with Mental health related variables
     # These are the Health variables
     SNSMOTH1   # DO YOU USE ANY OTHER SOCIAL NETWORKS
-    , SNSMOT2A #  FIRST OTHER SOCIAL NETWORK
-    , SNSMOT2B #  SECOND OTHER SOCIAL NETWORK
-    , SNSMOT2C #  THIRD OTHER SOCIAL NETWORK
-    , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
-    , SNSMYEAR #  YEAR FIRST JOINED SNS
-    , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
+    #, SNSMOT2A #  FIRST OTHER SOCIAL NETWORK
+    #, SNSMOT2B #  SECOND OTHER SOCIAL NETWORK
+    #, SNSMOT2C #  THIRD OTHER SOCIAL NETWORK
+   # , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
+   # , SNSMYEAR #  YEAR FIRST JOINED SNS
+   # , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
     , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
     , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
     , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
     , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
-    , NUMPROBS #  HOW MANY FRIENDS CLOSE TO DISCUSS PROBLEMS
-    , BYEMPROB #  HOW MANY FRIENDS DISCUSS PROBLEMS VIA EMAIL
-    , INTACCSS #  DOES R HAVE INTERNET THROUGH CELL PHONE OR PDA
+    #, NUMPROBS #  HOW MANY FRIENDS CLOSE TO DISCUSS PROBLEMS
+    #, BYEMPROB #  HOW MANY FRIENDS DISCUSS PROBLEMS VIA EMAIL
+   # , INTACCSS #  DOES R HAVE INTERNET THROUGH CELL PHONE OR PDA
     , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
-    , WEIGHT   # Weight
-    , HEIGHT   # R IS HOW TALL
-    , LIFENOW  # R'S RATING OF LIFE OVERALL NOW FROM 0-10
-    , DEPRESS  # TOLD HAVE DEPRESSION
-    , HLTHPHYS # R'S PHYSICAL HEALTH
-    , QUALLIFE # R'S QUALITY OF LIFE
-    , HLTHMNTL # R'S MENTAL HEALTH, MOOD, AND ABILITY TO THINK.        
+    #, WEIGHT   # Weight
+    #, HEIGHT   # R IS HOW TALL
+    #, LIFENOW  # R'S RATING OF LIFE OVERALL NOW FROM 0-10
+    #, DEPRESS  # TOLD HAVE DEPRESSION
+    #, HLTHPHYS # R'S PHYSICAL HEALTH
+    #, QUALLIFE # R'S QUALITY OF LIFE
+    #, HLTHMNTL # R'S MENTAL HEALTH, MOOD, AND ABILITY TO THINK.        
     , TWITTER  # CREATE DUMMY VARIABLE FOR THESE. IF ANY IS TRUE, MAKE IT 1, ELSE 0
     , LINKEDIN
     , SNAPCHAT
@@ -105,8 +105,8 @@ sliced_data <- raw_data %>%
     , ID       # RESPONDENT ID NUMBER
     , WRKSTAT  # LABOR FORCE STATUS
     , HRS1     # NUMBER OF HOURS WORKED LAST WEEK
-    , HRS2     # NUMBER OF HOURS USUALLY WORK A WEEK
-    , COMMUTE  # TRAVEL TIME TO WORK
+   # , HRS2     # NUMBER OF HOURS USUALLY WORK A WEEK
+    #, COMMUTE  # TRAVEL TIME TO WORK
     , 
     , # Social
     , SEX      # RESPONDENTS SEX
@@ -126,17 +126,7 @@ sliced_data <- raw_data %>%
     
     # New Variables to consider
     , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
-    #, HEALTH1 #R'S HEALTH IN GENERAL                                                           Too many NAS
-    #, HLTHCOVR #R HAS HEALTH INSURANCE COVERAGE                                                Too many NAS
-    #, HLTHINSR #HAVE HEALTH INSURANCE                                                          Too many NAS
-    #, MNTLDIF #HOW DIFFICULT TO GET MENTAL HEALTH CARE                                         Too many NAS
-    #, MHTREATD #R EVER TREATED FOR MH PROBLEM                                                  Too many NAS
-    #, SMOKE #DOES R SMOKE                                                                      Too many NAS
-    #, DRINK #EVER DRINK ALCOHOLIC BEVERAGES?                                                   Too many NAS
-    #, SLPPRBLM #TROUBLE SLEEPING LAST 12 MONTHS                                                Too many NAS
     , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED                                      
-    #, JOBKEEP #JOB SECURITY                                                                    Too many NAS
-    #, JOBSEC #NO DANGER OF BEING FIRED                                                         Too many NAS
     , SPWRKSTA #SPOUSE LABOR FORCE STATUS
     , MARITAL #MARITAL STATUS
   )
@@ -308,8 +298,6 @@ sliced_data <- filtered_data %>%
     #, DRINK #EVER DRINK ALCOHOLIC BEVERAGES?                                                   Too many NAS
     #, SLPPRBLM #TROUBLE SLEEPING LAST 12 MONTHS                                                Too many NAS
     , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED                                      
-    #, JOBKEEP #JOB SECURITY                                                                    Too many NAS
-    #, JOBSEC #NO DANGER OF BEING FIRED                                                         Too many NAS
     , SPWRKSTA #SPOUSE LABOR FORCE STATUS
     , MARITAL #MARITAL STATUS
   )
