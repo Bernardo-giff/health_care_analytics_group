@@ -519,9 +519,70 @@ ggplot(filtered_data, aes(x = WRKSTAT, fill = WRKSTAT)) +
 
 ```
 
-Moving on to 
+Moving on to HRS1 (Number of Hours worked last week)
+```{r}
+# Check the type of HRS1
+hrs1_type <- typeof(filtered_data$HRS1)
+print(paste("Type of HRS1:", hrs1_type))
 
+# Check for missing values in HRS1
+missing_hrs1 <- sum(is.na(filtered_data$HRS1))
+print(paste("Number of missing HRS1 values:", missing_hrs1))
 
+```
+
+A lot of NAs. Let's look at distribution and boxplot.
+```{r}
+# Visualize the distribution of HRS1 with a histogram
+ggplot(filtered_data, aes(x = HRS1)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  labs(title = "Distribution of HRS1", x = "Number of Hours Worked Last Week", y = "Count") +
+  theme_minimal()
+
+# Create a box plot for HRS1
+ggplot(filtered_data, aes(y = HRS1)) +
+  geom_boxplot(fill = "orange", color = "black") +
+  labs(title = "Box Plot of HRS1", y = "Number of Hours Worked Last Week") +
+  theme_minimal()
+
+# Summary Statistics for HRS1
+summary(filtered_data$HRS1)
+
+```
+
+As you can see, it seems the most frequent number of hours is around 40 which makes sense as most people work 40 hour weeks. We will use the median of 40 hours to impute the NA values.Moreover, we will set a reasonable minimum of 15 hours and a reasonable maximum of 70 hours.
+```{r}
+# Impute missing values with the median (40 hours)
+median_hrs1 <- 40
+filtered_data$HRS1[is.na(filtered_data$HRS1)] <- median_hrs1
+
+# Cap outliers: set minimum to 15 and maximum to 70
+filtered_data$HRS1 <- ifelse(filtered_data$HRS1 < 15, 15, filtered_data$HRS1)
+filtered_data$HRS1 <- ifelse(filtered_data$HRS1 > 70, 70, filtered_data$HRS1)
+
+# Verify the changes
+summary_hrs1_after <- summary(filtered_data$HRS1)
+print("Summary statistics for HRS1 after imputation and capping:")
+print(summary_hrs1_after)
+
+# Visualize the distribution of HRS1 with a histogram after changes
+ggplot(filtered_data, aes(x = HRS1)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  labs(title = "Distribution of HRS1 After Imputation and Capping", x = "Number of Hours Worked Last Week", y = "Count") +
+  theme_minimal()
+
+# Create a box plot for HRS1 after changes
+ggplot(filtered_data, aes(y = HRS1)) +
+  geom_boxplot(fill = "orange", color = "black") +
+  labs(title = "Box Plot of HRS1 After Imputation and Capping", y = "Number of Hours Worked Last Week") +
+  theme_minimal()
+
+```
+
+Ok let's move on to Sex.
+```{r}
+
+```
 
 
 
