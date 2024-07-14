@@ -610,6 +610,39 @@ ggplot(filtered_data, aes(x = SEX, fill = SEX)) +
 ```
 
 Moving on to the next variable, we have Born.
+```{r}
+# Check the type of BORN
+born_type <- typeof(filtered_data$BORN)
+print(paste("Type of BORN:", born_type))
+
+# Check for missing values in BORN
+missing_born <- sum(is.na(filtered_data$BORN))
+print(paste("Number of missing BORN values:", missing_born))
+
+# Show labels of BORN
+born_labels <- attr(filtered_data$BORN, "labels")
+print("Labels for BORN:")
+print(born_labels)
+
+```
+Making sure we do the right conversion and looking at its distribution
+```{r}
+# Convert BORN to a factor to use labels
+filtered_data$BORN <- factor(filtered_data$BORN, levels = c(1, 2, 8, 9), labels = c("YES", "NO", "DK", "NA"))
+
+# Verify the conversion
+print(levels(filtered_data$BORN))
+
+# Visualize the distribution of BORN with a bar plot
+ggplot(filtered_data, aes(x = BORN, fill = BORN)) +
+  geom_bar() +
+  labs(title = "Distribution of BORN", x = "Born in this country", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+```
+
+
 
 
 # Modeling
