@@ -10,7 +10,7 @@ This first chunk installs necessary packages. In the next code chunk, you will f
 
 ```{r}
 # This command sets the wd for the R project
-# setwd("/Users/bernardocarvalho/Desktop/imperial_repos/health_care_analytics_group")
+setwd("/Users/h.abdulla/Dropbox/Mac (3)/Desktop/Imperial/Modules/Y2/Term 3/Healthcare Analytics/Group Assignment/Healthcare Project")
 ```
 
 
