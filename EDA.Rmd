@@ -10,7 +10,11 @@ This first chunk installs necessary packages. In the next code chunk, you will f
 
 ```{r}
 # This command sets the wd for the R project
-setwd("/Users/h.abdulla/Dropbox/Mac (3)/Desktop/Imperial/Modules/Y2/Term 3/Healthcare Analytics/Group Assignment/Healthcare Project")
+```
+
+
+```{r}
+#setwd("/Users/h.abdulla/Dropbox/Mac (3)/Desktop/Imperial/Modules/Y2/Term 3/Healthcare Analytics/Group Assignment/Healthcare Project")
 ```
 
 
@@ -35,6 +39,24 @@ file = "gss_spss_with_codebook/GSS7218_R3.sav"
 
 # Read the data file
 raw_data <- read_sav(file)
+```
+
+
+```{r}
+data_2016 <- raw_data %>%
+  filter(YEAR == 2018)
+
+# Calculate the total number of rows in the dataframe
+total_rows <- nrow(data_2016)
+
+# Calculate the percentage of non-NA values for each column
+non_na_percentage <- colSums(!is.na(data_2016)) / total_rows
+
+# Identify columns with more than 10% non-NA values
+columns_with_more_than_10_percent_non_na <- names(non_na_percentage[non_na_percentage > 0.40])
+
+# Print the column names
+print(columns_with_more_than_10_percent_non_na)
 ```
 
 # Data cleaning
@@ -82,14 +104,18 @@ sliced_data <- raw_data %>%
     , COMMUTE  # TRAVEL TIME TO WORK
     , 
     , # Social
-    , SEX     # RESPONDENTS SEX
-    , RACE    # RACE OF RESPONDENT
-    , BORN    # WAS R BORN IN THIS COUNTRY
+    , SEX      # RESPONDENTS SEX
+    , RACE     # RACE OF RESPONDENT
+    , BORN     # WAS R BORN IN THIS COUNTRY
     , REGION   # REGION OF INTERVIEW
     , INCOME06 # TOTAL FAMILY INCOME
     , RINCOM06 # RESPONDENTS INCOME
     , INCOME16 # TOTAL FAMILY INCOME
     , RINCOM16 # RESPONDENTS INCOME
+    , CHILDS   # 
+    , PAEDUC
+    , MAEDUC
+    , SEXSEX   # Sex of sex partners in the last year
     
     # New Variables to consider
     , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
