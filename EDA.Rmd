@@ -683,6 +683,54 @@ ggplot(filtered_data, aes(x = REGION, fill = REGION)) +
 ```
 
 
+Moving onto Number of persons in a household (HOMPOP)
+```{r}
+# Check the type of HOMPOP
+hompop_type <- typeof(filtered_data$HOMPOP)
+print(paste("Type of HOMPOP:", hompop_type))
+
+# Check for missing values in HOMPOP
+missing_hompop <- sum(is.na(filtered_data$HOMPOP))
+print(paste("Number of missing HOMPOP values:", missing_hompop))
+
+# Summary statistics for HOMPOP
+summary(filtered_data$HOMPOP)
+```
+
+```{r}
+# Check unique values of HOMPOP
+unique_hompop_values <- unique(filtered_data$HOMPOP)
+print("Unique values of HOMPOP:")
+print(unique_hompop_values)
+```
+
+```{r}
+# Remove 'DK' and 'NA' values if they exist in the data
+filtered_data <- filtered_data[!filtered_data$HOMPOP %in% c(98, 99), ]
+
+# Visualize the distribution of HOMPOP with a histogram (discrete bins)
+ggplot(filtered_data, aes(x = as.factor(HOMPOP), fill = as.factor(HOMPOP))) +
+  geom_bar() +
+  labs(title = "Distribution of HOMPOP", x = "Number of Persons in Household", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+# Create a box plot for HOMPOP
+ggplot(filtered_data, aes(y = HOMPOP)) +
+  geom_boxplot(fill = "orange", color = "black") +
+  labs(title = "Box Plot of HOMPOP", y = "Number of Persons in Household") +
+  theme_minimal()
+```
+
+Moving on to EDUC, we have the following.
+```{r}
+
+```
+
+
+
+
+
 
 
 # Modeling
