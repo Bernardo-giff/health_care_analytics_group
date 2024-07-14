@@ -714,7 +714,46 @@ ggplot(filtered_data, aes(x = SPWRKSTA, fill = SPWRKSTA)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+Let's look at Marital Status
+```{r}
+# Check the type of MARITAL
+marital_type <- typeof(filtered_data$MARITAL)
+print(paste("Type of MARITAL:", marital_type))
 
+# Check for missing values in MARITAL
+missing_marital <- sum(is.na(filtered_data$MARITAL))
+print(paste("Number of missing MARITAL values:", missing_marital))
+
+# Show labels of MARITAL
+marital_labels <- attr(filtered_data$MARITAL, "labels")
+print("Labels for MARITAL:")
+print(marital_labels)
+
+```
+We make sure we do the right conversion and visualisations
+```{r}
+# Convert MARITAL to a factor using the labels
+filtered_data$MARITAL <- factor(filtered_data$MARITAL, 
+                                levels = c(1, 2, 3, 4, 5, 9), 
+                                labels = c("Married", "Widowed", "Divorced", "Separated", "Never Married", "NA"))
+
+# Verify the conversion
+print(levels(filtered_data$MARITAL))
+
+# Remove rows with special codes in MARITAL
+filtered_data <- filtered_data[filtered_data$MARITAL != "NA", ]
+
+# Verify the changes
+summary(filtered_data$MARITAL)
+
+# Visualize the distribution of MARITAL with a bar plot
+ggplot(filtered_data, aes(x = MARITAL, fill = MARITAL)) +
+  geom_bar() +
+  labs(title = "Distribution of MARITAL", x = "Marital Status", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
 
 
