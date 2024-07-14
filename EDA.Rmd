@@ -679,38 +679,6 @@ ggplot(filtered_data, aes(x = REGION, fill = REGION)) +
 
 
 ```
-Moving on to the income of the household of the respondent (INCOME16).
-```{r}
-# Check the type of INCOME16
-income16_type <- typeof(filtered_data$INCOME16)
-print(paste("Type of INCOME16:", income16_type))
-
-# Check for missing values in INCOME16
-missing_income16 <- sum(is.na(filtered_data$INCOME16))
-print(paste("Number of missing INCOME16 values:", missing_income16))
-
-# Summary statistics for INCOME16
-summary(filtered_data$INCOME16)
-```
-
-Let's do some visualizations.
-```{r}
-# Visualize the distribution of INCOME16 with a histogram
-ggplot(filtered_data, aes(x = INCOME16)) +
-  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
-  labs(title = "Distribution of INCOME16", x = "Total Family Income (2016)", y = "Count") +
-  theme_minimal()
-
-# Create a box plot for INCOME16
-ggplot(filtered_data, aes(y = INCOME16)) +
-  geom_boxplot(fill = "orange", color = "black") +
-  labs(title = "Box Plot of INCOME16", y = "Total Family Income (2016)") +
-  theme_minimal()
-
-```
-
-
-
 
 
 
