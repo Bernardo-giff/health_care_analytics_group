@@ -44,7 +44,7 @@ raw_data <- read_sav(file)
 
 ```{r}
 data_2016 <- raw_data %>%
-  filter(YEAR == 2018)
+  filter(YEAR == 2016)
 
 # Calculate the total number of rows in the dataframe
 total_rows <- nrow(data_2016)
@@ -91,7 +91,12 @@ sliced_data <- raw_data %>%
     , DEPRESS  # TOLD HAVE DEPRESSION
     , HLTHPHYS # R'S PHYSICAL HEALTH
     , QUALLIFE # R'S QUALITY OF LIFE
-    , HLTHMNTL # R'S MENTAL HEALTH, MOOD, AND ABILITY TO THINK.           
+    , HLTHMNTL # R'S MENTAL HEALTH, MOOD, AND ABILITY TO THINK.        
+    , TWITTER  # CREATE DUMMY VARIABLE FOR THESE. IF ANY IS TRUE, MAKE IT 1, ELSE 0
+    , LINKEDIN
+    , SNAPCHAT
+    , INSTAGRM
+    , FACEBOOK
     
     # Then, control variables
     , YEAR     # GSS YEAR FOR THIS RESPONDENT
@@ -112,10 +117,12 @@ sliced_data <- raw_data %>%
     , RINCOM06 # RESPONDENTS INCOME
     , INCOME16 # TOTAL FAMILY INCOME
     , RINCOM16 # RESPONDENTS INCOME
-    , CHILDS   # 
-    , PAEDUC
-    , MAEDUC
+    , CHILDS   # NUMBER OF CHILDREN
+    , PAEDUC   # HIGHEST YEAR SCHOOL COMPLETED, FATHER
+    , MAEDUC   # HIGHEST YEAR SCHOOL COMPLETED, MOTHER
     , SEXSEX   # Sex of sex partners in the last year
+    , PRES16   # How voted for (i.e: liberal or not)
+    , 
     
     # New Variables to consider
     , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
