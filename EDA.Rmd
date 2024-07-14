@@ -23,6 +23,7 @@ This first chunk installs necessary packages. In the next code chunk, you will f
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 install.packages("haven")
+install.packages("corrplot")
 ```
 
 ```{r}
@@ -33,6 +34,7 @@ library(dplyr)
 library(stargazer)
 library(stringr)
 library(naniar)
+library(corrplot)
 ```
 
 ```{r}
@@ -55,10 +57,10 @@ There are hundreads of variables in the dataset. However, several of them are no
 
 ```{r}
 # Calculate the total number of rows in the dataframe
-total_rows <- nrow(data_2016)
+total_rows <- nrow(data)
 
 # Calculate the percentage of non-NA values for each column
-non_na_percentage <- colSums(!is.na(data_2016)) / total_rows
+non_na_percentage <- colSums(!is.na(data)) / total_rows
 
 # Identify columns with more than 10% non-NA values
 columns_with_more_than_40_percent_non_na <- names(non_na_percentage[non_na_percentage > 0.40])
@@ -86,8 +88,7 @@ data <- data %>%
     , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
     , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
     , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
-    , WEIGHT   # Weight
-    , HEIGHT   # R IS HOW TALL
+    , RHEIGHT   # R IS HOW TALL
     #, LIFENOW  # R'S RATING OF LIFE OVERALL NOW FROM 0-10
     #, DEPRESS  # TOLD HAVE DEPRESSION
     #, HLTHPHYS # R'S PHYSICAL HEALTH
@@ -132,191 +133,27 @@ data <- data %>%
 ```
 
 
-Since we are interested in the impact of social media usage on people's metal health (perceived), we will limit the scope of the data to the responses from 2006 and 2016
-
-```{r}
-
-# Plot bar plot for 'Exercise' variable
-ggplot(raw_data, aes(x = YEAR)) +
-  geom_bar() +
-  labs(title = "Number of reponses by year", x = "Year", y = "Count") +
-  theme_minimal()
-
-```
-
-We see that it has a similar level of responses to the other years so there are no concerns with regards to the availability of the data.
-
-```{r}
-filtered_data <- sliced_data %>%
-  filter(YEAR %in% c(2006, 2016))
-```
-
 Next let's check for missing variables
 
 ```{r}
-vis_miss(filtered_data)
+vis_miss(data)
 ```
 
 We assume the variables where 100% of the data is missing to be not present in the latest version of the survey. Therefore we remove them from the target variables. We also removed the "Number of hours worked last week" because there is already a similar question in the codebook and for this variable 98% of the data is missing. Same was done for SNSMOT2A:
 
-```{r}
-sliced_data <- filtered_data %>%
-  select(
-     # First, start with Mental health related variables
-    # These are the Health variables
-    SNSMOTH1   # DO YOU USE ANY OTHER SOCIAL NETWORKS
-    #, SNSMOT2A #  FIRST OTHER SOCIAL NETWORK
-    #, SNSMOT2B #  SECOND OTHER SOCIAL NETWORK
-    #, SNSMOT2C #  THIRD OTHER SOCIAL NETWORK
-   # , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
-   # , SNSMYEAR #  YEAR FIRST JOINED SNS
-   # , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
-    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
-    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
-    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
-    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
-    #, NUMPROBS #  HOW MANY FRIENDS CLOSE TO DISCUSS PROBLEMS
-    #, BYEMPROB #  HOW MANY FRIENDS DISCUSS PROBLEMS VIA EMAIL
-   # , INTACCSS #  DOES R HAVE INTERNET THROUGH CELL PHONE OR PDA
-    , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
-    #, WEIGHT   # Weight
-    #, HEIGHT   # R IS HOW TALL
-    #, LIFENOW  # R'S RATING OF LIFE OVERALL NOW FROM 0-10
-    #, DEPRESS  # TOLD HAVE DEPRESSION
-    #, HLTHPHYS # R'S PHYSICAL HEALTH
-    #, QUALLIFE # R'S QUALITY OF LIFE
-    #, HLTHMNTL # R'S MENTAL HEALTH, MOOD, AND ABILITY TO THINK.        
-    , TWITTER  # CREATE DUMMY VARIABLE FOR THESE. IF ANY IS TRUE, MAKE IT 1, ELSE 0
-    , LINKEDIN
-    , SNAPCHAT
-    , INSTAGRM
-    , FACEBOOK
-    
-    # Then, control variables
-    , YEAR     # GSS YEAR FOR THIS RESPONDENT
-    
-      # Labour
-    , ID       # RESPONDENT ID NUMBER
-    , WRKSTAT  # LABOR FORCE STATUS
-    , HRS1     # NUMBER OF HOURS WORKED LAST WEEK
-   # , HRS2     # NUMBER OF HOURS USUALLY WORK A WEEK
-    #, COMMUTE  # TRAVEL TIME TO WORK
-    , 
-    , # Social
-    , SEX      # RESPONDENTS SEX
-    , RACE     # RACE OF RESPONDENT
-    , BORN     # WAS R BORN IN THIS COUNTRY
-    , REGION   # REGION OF INTERVIEW
-   # , INCOME06 # TOTAL FAMILY INCOME
-    #, RINCOM06 # RESPONDENTS INCOME
-    , INCOME16 # TOTAL FAMILY INCOME
-    , RINCOM16 # RESPONDENTS INCOME
-    , CHILDS   # NUMBER OF CHILDREN
-    , PAEDUC   # HIGHEST YEAR SCHOOL COMPLETED, FATHER
-    , MAEDUC   # HIGHEST YEAR SCHOOL COMPLETED, MOTHER
-    , SEXSEX   # Sex of sex partners in the last year
-    , PRES16   # How voted for (i.e: liberal or not)
-    , 
-    
-    # New Variables to consider
-    , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
-    , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED                                      
-    , SPWRKSTA #SPOUSE LABOR FORCE STATUS
-    , MARITAL #MARITAL STATUS
-  )
-  
-```
-
-```{r}
-vis_miss(sliced_data)
-```
-
 Our selected dependent variable has only 62% of the data present. We try to investigate further it there is some pattern to the missing data. We immediately observe that the questions about social media usage were not present prior to 2016, as their missing values match perfectly with the ones to the income question. We can validate this assumtion by counting the non-na values in 2016. Therefore, to use this variables we will need to keep the timeframe restricted to 2016
 
 ```{r}
-# Filtering the data again
-filtered_data <- sliced_data %>%
-  filter(YEAR == 2016)
-
-#Slicing the data again
-sliced_data <- filtered_data %>%
-  select(
-     # First, start with Mental health related variables
-    # These are the Health variables
-    SNSMOTH1   # DO YOU USE ANY OTHER SOCIAL NETWORKS
-    #, SNSMOT2A #  FIRST OTHER SOCIAL NETWORK
-    #, SNSMOT2B #  SECOND OTHER SOCIAL NETWORK
-    #, SNSMOT2C #  THIRD OTHER SOCIAL NETWORK
-   # , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
-   # , SNSMYEAR #  YEAR FIRST JOINED SNS
-   # , SNSMFRST #  WHICH SOCIAL NETWORK DID YOU JOIN FIRST
-    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
-    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
-    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
-    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
-    #, NUMPROBS #  HOW MANY FRIENDS CLOSE TO DISCUSS PROBLEMS
-    #, BYEMPROB #  HOW MANY FRIENDS DISCUSS PROBLEMS VIA EMAIL
-   # , INTACCSS #  DOES R HAVE INTERNET THROUGH CELL PHONE OR PDA
-    , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
-    #, WEIGHT   # Weight
-    #, HEIGHT   # R IS HOW TALL
-    #, LIFENOW  # R'S RATING OF LIFE OVERALL NOW FROM 0-10
-    #, DEPRESS  # TOLD HAVE DEPRESSION
-    #, HLTHPHYS # R'S PHYSICAL HEALTH
-    #, QUALLIFE # R'S QUALITY OF LIFE
-    #, HLTHMNTL # R'S MENTAL HEALTH, MOOD, AND ABILITY TO THINK.        
-    , TWITTER  # CREATE DUMMY VARIABLE FOR THESE. IF ANY IS TRUE, MAKE IT 1, ELSE 0
-    , LINKEDIN
-    , SNAPCHAT
-    , INSTAGRM
-    , FACEBOOK
-    
-    # Then, control variables
-    , YEAR     # GSS YEAR FOR THIS RESPONDENT
-    
-      # Labour
-    , ID       # RESPONDENT ID NUMBER
-    , WRKSTAT  # LABOR FORCE STATUS
-    , HRS1     # NUMBER OF HOURS WORKED LAST WEEK
-   # , HRS2     # NUMBER OF HOURS USUALLY WORK A WEEK
-    #, COMMUTE  # TRAVEL TIME TO WORK
-    , 
-    , # Social
-    , SEX      # RESPONDENTS SEX
-    , RACE     # RACE OF RESPONDENT
-    , BORN     # WAS R BORN IN THIS COUNTRY
-    , REGION   # REGION OF INTERVIEW
-   # , INCOME06 # TOTAL FAMILY INCOME
-    #, RINCOM06 # RESPONDENTS INCOME
-    , INCOME16 # TOTAL FAMILY INCOME
-    , RINCOM16 # RESPONDENTS INCOME
-    , CHILDS   # NUMBER OF CHILDREN
-    , PAEDUC   # HIGHEST YEAR SCHOOL COMPLETED, FATHER
-    , MAEDUC   # HIGHEST YEAR SCHOOL COMPLETED, MOTHER
-    , SEXSEX   # Sex of sex partners in the last year
-    , PRES16   # How voted for (i.e: liberal or not)
-    ## So I did ID up to Region. 
-    
-    # New Variables to consider
-    , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
-    , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED                                      
-    , SPWRKSTA #SPOUSE LABOR FORCE STATUS
-    , MARITAL #MARITAL STATUS
-  )
-```
-
-
-```{r}
-gg_miss_upset(sliced_data, nsets = 10, nintersects = 50)
+gg_miss_upset(data, nsets = 10, nintersects = 50)
 ```
 By inspecting the upset vizualition, we could not find any significant pattern with the dependent variable. Therefore, we will simply drop the na's from consideration
 
 ```{r}
 # Drop NA's and the no answers: IAP, DONT KNOW and NO ANSWER values
-filtered_data <- filtered_data %>%
+data <- data %>%
   filter(!is.na(MNTLHLTH) & !MNTLHLTH %in% c(-1, 98, 99))
 
-ggplot(filtered_data, aes(x = MNTLHLTH)) +
+ggplot(data, aes(x = MNTLHLTH)) +
   geom_histogram(fill = "skyblue", color = "black") +
   labs(title = "Distribution of days with poor mental health", x = "Number of days with poor mental health", y = "Count") +
   theme_minimal()
@@ -334,7 +171,7 @@ We start our exploration by looking at the amount of minutes spent on internet. 
 #    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
 #    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
 
-ggplot(filtered_data, aes(x = INTWKDYM)) +
+ggplot(data, aes(x = INTWKDYM)) +
   geom_histogram(fill = "skyblue", color = "black") +
   labs(title = "Distribution of minutes of internet usage per weekday", x = "Minutes", y = "Count") +
   theme_minimal()
@@ -348,7 +185,7 @@ Same for weekends
 #    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
 #    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
 
-ggplot(filtered_data, aes(x = INTWKENM)) +
+ggplot(data, aes(x = INTWKENM)) +
   geom_histogram(fill = "skyblue", color = "black") +
   labs(title = "Distribution of minutes of internet usage per weekday", x = "Minutes", y = "Count") +
   theme_minimal()
@@ -356,8 +193,6 @@ ggplot(filtered_data, aes(x = INTWKENM)) +
 As the range is always capped at 60, our assumption is that this is either a complement to the number of hours or applicable when respondents do not spend even 1 hour using the internet per week. For simplicity of analysis and since we are interested in the relantionship between the total amount of time spent per week on social media, we will create a new variable that returns 1 if the number of minutes spent is >= 20 minutes and simply round to zero otherwise. This will also take care of the duplicates
 
 ```{r}
-data <- filtered_data
-
 # Create new column based on minutes per week
 data$hours_wkd_from_m <- ifelse(data$INTWKDYM < 20, 0, 1)
 
@@ -369,7 +204,7 @@ data$hours_wke_from_m <- ifelse(data$INTWKENM < 20, 0, 1)
 Next, we look at the number of hours spend per week 
 
 ```{r}
-ggplot(filtered_data, aes(x = INTWKDYH)) +
+ggplot(data, aes(x = INTWKDYH)) +
   geom_histogram(fill = "skyblue", color = "black") +
   labs(title = "Distribution of minutes of internet usage per weekday", x = "Hours", y = "Count") +
   theme_minimal()
@@ -378,7 +213,7 @@ ggplot(filtered_data, aes(x = INTWKDYH)) +
 
 
 ```{r}
-ggplot(filtered_data, aes(x = INTWKENH)) +
+ggplot(data, aes(x = INTWKENH)) +
   geom_histogram(fill = "skyblue", color = "black") +
   labs(title = "Distribution of minutes of internet usage per weekends", x = "Hours", y = "Count") +
   theme_minimal()
@@ -429,51 +264,74 @@ data$flg_is_white <- ifelse(data$RACE == 1, 1, 0)
 At this stage, we will use the binary variables that indicate if the respondent has used any of the social networks.
 
 ```{r}
+# Assuming df is your data frame with the new columns
+data$flg_uses_twitter <- ifelse(is.na(data$TWITTER), 0, ifelse(data$TWITTER == 1, 1, 0))
+data$flg_uses_linkedin <- ifelse(is.na(data$LINKEDIN), 0, ifelse(data$LINKEDIN == 1, 1, 0))
+data$flg_uses_snapchat <- ifelse(is.na(data$SNAPCHAT), 0, ifelse(data$SNAPCHAT == 1, 1, 0))
+data$flg_uses_instagram <- ifelse(is.na(data$INSTAGRM), 0, ifelse(data$INSTAGRM == 1, 1, 0))
+data$flg_uses_facebook <- ifelse(is.na(data$FACEBOOK), 0, ifelse(data$FACEBOOK == 1, 1, 0))
 
-df <- filtered_data %>%
-  select(
-    TWITTER
-    , LINKEDIN
-    , SNAPCHAT
-    , INSTAGRM
-    , FACEBOOK
-  )
+```
 
-# Assuming your data frame is named df
 
-# Count the number of 1s in each column
-counts <- colSums(df == 1)
+```{r}
+
+# Step 3: Count the number of 1s in each column
+counts <- colSums(data[, c("flg_uses_twitter", "flg_uses_linkedin", "flg_uses_snapchat", "flg_uses_instagram", "flg_uses_facebook")])
 
 # Plot the counts
 barplot(counts, main="Count of 1s for each Social Media Platform", 
-        xlab="Platform", ylab="Count of 1s", col="blue")
+        xlab="Platform", ylab="Count of 1s", col="blue", names.arg=c("Twitter", "LinkedIn", "Snapchat", "Instagram", "Facebook"))
+
 ```
 
+We see that Facebook is by far the most popular social network. We will also check the correlation matrix of these variables
+```{r}
+# Selecting subset of the only the binary columns
+binary_df <- data[, c("flg_uses_twitter", "flg_uses_linkedin", "flg_uses_snapchat", "flg_uses_instagram", "flg_uses_facebook")]
+
+# Computing the correlation matrix
+cor_matrix <- cor(binary_df)
+
+# Step 5: Plot the correlation matrix
+corrplot(cor_matrix, method="color", type="upper", 
+         tl.col="black", tl.srt=45, 
+         title="Correlation Matrix of Social Media Usage", mar=c(0,0,1,0))
+```
+The only social networks that show a low correlation are Linkedin and Snapshat. Our approach will be to try two variables: The sum of distinct social networks used and a binary variable if any is used. We will try both in the regression and observe the results
+
+```{r}
+# Sum of distinct social networks
+data$nr_unique_specific_sns <- data$flg_uses_facebook + data$flg_uses_instagram + data$flg_uses_linkedin + data$flg_uses_snapchat + data$flg_uses_twitter
+
+# Flag that shows if any of these is used
+data$flg_uses_specific_sns <- ifelse(data$nr_unique_specific_sns > 0 , 1, 0)
+```
 
 #EDA (New)
 
 Let's quickly have a look at ID and make sure there are no duplicates/NAs
 ```{r}
 #Check for NAs
-missing_id <- sum(is.na(filtered_data$ID))
+missing_id <- sum(is.na(data$ID))
 print(paste("Number of missing ID values:", missing_id))
 
 #Checking for duplicates
-duplicate_id <- sum(duplicated(filtered_data$ID))
+duplicate_id <- sum(duplicated(data$ID))
 print(paste("Number of duplicate ID values:", duplicate_id))
 
 #Summary of Variable
-summary(filtered_data$ID)
+summary(data$ID)
 ```
 
 Moving on to the employment status (WRKSTAT), we do the following.
 ```{r}
 # Check the type of WRKSTAT
-wrkstat_type <- typeof(filtered_data$WRKSTAT)
+wrkstat_type <- typeof(data$WRKSTAT)
 print(paste("Type of WRKSTAT:", wrkstat_type))
 
 # Check for missing values in WRKSTAT
-missing_wrkstat <- sum(is.na(filtered_data$WRKSTAT))
+missing_wrkstat <- sum(is.na(data$WRKSTAT))
 print(paste("Number of missing WRKSTAT values:", missing_wrkstat))
 
 ```
@@ -482,26 +340,26 @@ print(paste("Number of missing WRKSTAT values:", missing_wrkstat))
 We need to change convert it to a factor so we do the following
 ```{r}
 # Check the labels of WRKSTAT
-wrkstat_labels <- attr(filtered_data$WRKSTAT, "labels")
+wrkstat_labels <- attr(data$WRKSTAT, "labels")
 print("Labels of WRKSTAT:")
 print(wrkstat_labels)
 
 # Convert WRKSTAT to factor
-filtered_data$WRKSTAT <- as_factor(filtered_data$WRKSTAT)
+data$WRKSTAT <- as_factor(data$WRKSTAT)
 
 # Verify the conversion
-print(levels(filtered_data$WRKSTAT))
+print(levels(data$WRKSTAT))
 ```
 
 We look at the distribution of it
 ```{r}
 # Distribution of WRKSTAT variable
-wrkstat_distribution <- table(filtered_data$WRKSTAT)
+wrkstat_distribution <- table(data$WRKSTAT)
 print("Distribution of WRKSTAT values:")
 print(wrkstat_distribution)
 
 # Visualize the distribution of WRKSTAT with color
-ggplot(filtered_data, aes(x = WRKSTAT, fill = WRKSTAT)) +
+ggplot(data, aes(x = WRKSTAT, fill = WRKSTAT)) +
   geom_bar() +
   labs(title = "Distribution of WRKSTAT", x = "Labor Force Status", y = "Count") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -513,11 +371,11 @@ ggplot(filtered_data, aes(x = WRKSTAT, fill = WRKSTAT)) +
 We can combine categories as follows and get rid of NAs
 ```{r}
 # Remove rows with NA in WRKSTAT
-filtered_data <- filtered_data[!is.na(filtered_data$WRKSTAT), ]
+data <- data[!is.na(data$WRKSTAT), ]
 
 # Re-categorize WRKSTAT, combining "Other" with "Unemployed"
-filtered_data$WRKSTAT <- recode(
-  filtered_data$WRKSTAT,
+data$WRKSTAT <- recode(
+  data$WRKSTAT,
   `WORKING FULLTIME` = "Employed",
   `WORKING PARTTIME` = "Employed",
   `UNEMPL, LAID OFF` = "Unemployed",
@@ -529,10 +387,10 @@ filtered_data$WRKSTAT <- recode(
 )
 
 # Verify the new categories
-print(table(filtered_data$WRKSTAT))
+print(table(data$WRKSTAT))
 
 # Visualize the re-categorized distribution of WRKSTAT with color
-ggplot(filtered_data, aes(x = WRKSTAT, fill = WRKSTAT)) +
+ggplot(data, aes(x = WRKSTAT, fill = WRKSTAT)) +
   geom_bar() +
   labs(title = "Re-Categorized Distribution of WRKSTAT", x = "Labor Force Status", y = "Count") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -545,11 +403,11 @@ ggplot(filtered_data, aes(x = WRKSTAT, fill = WRKSTAT)) +
 Moving on to HRS1 (Number of Hours worked last week)
 ```{r}
 # Check the type of HRS1
-hrs1_type <- typeof(filtered_data$HRS1)
+hrs1_type <- typeof(data$HRS1)
 print(paste("Type of HRS1:", hrs1_type))
 
 # Check for missing values in HRS1
-missing_hrs1 <- sum(is.na(filtered_data$HRS1))
+missing_hrs1 <- sum(is.na(data$HRS1))
 print(paste("Number of missing HRS1 values:", missing_hrs1))
 
 ```
@@ -557,19 +415,19 @@ print(paste("Number of missing HRS1 values:", missing_hrs1))
 A lot of NAs. Let's look at distribution and boxplot.
 ```{r}
 # Visualize the distribution of HRS1 with a histogram
-ggplot(filtered_data, aes(x = HRS1)) +
+ggplot(data, aes(x = HRS1)) +
   geom_histogram(binwidth = 1, fill = "blue", color = "black") +
   labs(title = "Distribution of HRS1", x = "Number of Hours Worked Last Week", y = "Count") +
   theme_minimal()
 
 # Create a box plot for HRS1
-ggplot(filtered_data, aes(y = HRS1)) +
+ggplot(data, aes(y = HRS1)) +
   geom_boxplot(fill = "orange", color = "black") +
   labs(title = "Box Plot of HRS1", y = "Number of Hours Worked Last Week") +
   theme_minimal()
 
 # Summary Statistics for HRS1
-summary(filtered_data$HRS1)
+summary(data$HRS1)
 
 ```
 
@@ -577,25 +435,25 @@ As you can see, it seems the most frequent number of hours is around 40 which ma
 ```{r}
 # Impute missing values with the median (40 hours)
 median_hrs1 <- 40
-filtered_data$HRS1[is.na(filtered_data$HRS1)] <- median_hrs1
+data$HRS1[is.na(data$HRS1)] <- median_hrs1
 
 # Cap outliers: set minimum to 15 and maximum to 70
-filtered_data$HRS1 <- ifelse(filtered_data$HRS1 < 15, 15, filtered_data$HRS1)
-filtered_data$HRS1 <- ifelse(filtered_data$HRS1 > 70, 70, filtered_data$HRS1)
+data$HRS1 <- ifelse(data$HRS1 < 15, 15, data$HRS1)
+data$HRS1 <- ifelse(data$HRS1 > 70, 70, data$HRS1)
 
 # Verify the changes
-summary_hrs1_after <- summary(filtered_data$HRS1)
+summary_hrs1_after <- summary(data$HRS1)
 print("Summary statistics for HRS1 after imputation and capping:")
 print(summary_hrs1_after)
 
 # Visualize the distribution of HRS1 with a histogram after changes
-ggplot(filtered_data, aes(x = HRS1)) +
+ggplot(data, aes(x = HRS1)) +
   geom_histogram(binwidth = 1, fill = "blue", color = "black") +
   labs(title = "Distribution of HRS1 After Imputation and Capping", x = "Number of Hours Worked Last Week", y = "Count") +
   theme_minimal()
 
 # Create a box plot for HRS1 after changes
-ggplot(filtered_data, aes(y = HRS1)) +
+ggplot(data, aes(y = HRS1)) +
   geom_boxplot(fill = "orange", color = "black") +
   labs(title = "Box Plot of HRS1 After Imputation and Capping", y = "Number of Hours Worked Last Week") +
   theme_minimal()
@@ -605,15 +463,15 @@ ggplot(filtered_data, aes(y = HRS1)) +
 Ok let's move on to the variable SEX.
 ```{r}
 # Check the type of SEX
-sex_type <- typeof(filtered_data$SEX)
+sex_type <- typeof(data$SEX)
 print(paste("Type of SEX:", sex_type))
 
 # Check for missing values in SEX
-missing_sex <- sum(is.na(filtered_data$SEX))
+missing_sex <- sum(is.na(data$SEX))
 print(paste("Number of missing SEX values:", missing_sex))
 
 # Show labels of SEX
-sex_labels <- attr(filtered_data$SEX, "labels")
+sex_labels <- attr(data$SEX, "labels")
 print("Labels for SEX:")
 print(sex_labels)
 ```
@@ -621,10 +479,10 @@ print(sex_labels)
 Let's convert to the right type and look at its distribution
 ```{r}
 # Convert SEX to a factor to use labels
-filtered_data$SEX <- factor(filtered_data$SEX, levels = c(1, 2), labels = c("MALE", "FEMALE"))
+data$SEX <- factor(data$SEX, levels = c(1, 2), labels = c("MALE", "FEMALE"))
 
 # Visualize the distribution of SEX with a bar plot
-ggplot(filtered_data, aes(x = SEX, fill = SEX)) +
+ggplot(data, aes(x = SEX, fill = SEX)) +
   geom_bar() +
   labs(title = "Distribution of SEX", x = "Sex", y = "Count") +
   theme_minimal() +
@@ -635,15 +493,15 @@ ggplot(filtered_data, aes(x = SEX, fill = SEX)) +
 Moving on to the next variable, we have Born.
 ```{r}
 # Check the type of BORN
-born_type <- typeof(filtered_data$BORN)
+born_type <- typeof(data$BORN)
 print(paste("Type of BORN:", born_type))
 
 # Check for missing values in BORN
-missing_born <- sum(is.na(filtered_data$BORN))
+missing_born <- sum(is.na(data$BORN))
 print(paste("Number of missing BORN values:", missing_born))
 
 # Show labels of BORN
-born_labels <- attr(filtered_data$BORN, "labels")
+born_labels <- attr(data$BORN, "labels")
 print("Labels for BORN:")
 print(born_labels)
 
@@ -651,13 +509,13 @@ print(born_labels)
 Making sure we do the right conversion and looking at its distribution
 ```{r}
 # Convert BORN to a factor to use labels
-filtered_data$BORN <- factor(filtered_data$BORN, levels = c(1, 2, 8, 9), labels = c("YES", "NO", "DK", "NA"))
+data$BORN <- factor(data$BORN, levels = c(1, 2, 8, 9), labels = c("YES", "NO", "DK", "NA"))
 
 # Verify the conversion
-print(levels(filtered_data$BORN))
+print(levels(data$BORN))
 
 # Visualize the distribution of BORN with a bar plot
-ggplot(filtered_data, aes(x = BORN, fill = BORN)) +
+ggplot(data, aes(x = BORN, fill = BORN)) +
   geom_bar() +
   labs(title = "Distribution of BORN", x = "Born in this country", y = "Count") +
   theme_minimal() +
@@ -668,15 +526,15 @@ ggplot(filtered_data, aes(x = BORN, fill = BORN)) +
 Moving onto region variable
 ```{r}
 # Check the type of REGION
-region_type <- typeof(filtered_data$REGION)
+region_type <- typeof(data$REGION)
 print(paste("Type of REGION:", region_type))
 
 # Check for missing values in REGION
-missing_region <- sum(is.na(filtered_data$REGION))
+missing_region <- sum(is.na(data$REGION))
 print(paste("Number of missing REGION values:", missing_region))
 
 # Show labels of REGION
-region_labels <- attr(filtered_data$REGION, "labels")
+region_labels <- attr(data$REGION, "labels")
 print("Labels for REGION:")
 print(region_labels)
 
@@ -684,16 +542,16 @@ print(region_labels)
 Doing the right conversions and visualizing the variable, we have the following.
 ```{r}
 # Convert REGION to a factor to use labels
-filtered_data$REGION <- factor(filtered_data$REGION, 
+data$REGION <- factor(data$REGION, 
                                levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9), 
                                labels = c("NEW ENGLAND", "MIDDLE ATLANTIC", "E. NOR. CENTRAL", "W. NOR. CENTRAL", 
                                           "SOUTH ATLANTIC", "E. SOU. CENTRAL", "W. SOU. CENTRAL", "MOUNTAIN", "PACIFIC"))
 
 # Verify the conversion
-print(levels(filtered_data$REGION))
+print(levels(data$REGION))
 
 # Visualize the distribution of REGION with a bar plot
-ggplot(filtered_data, aes(x = REGION, fill = REGION)) +
+ggplot(data, aes(x = REGION, fill = REGION)) +
   geom_bar() +
   labs(title = "Distribution of REGION", x = "Region", y = "Count") +
   theme_minimal() +
@@ -744,7 +602,8 @@ ols1 = lm(
   + HRS1     # NUMBER OF HOURS WORKED LAST WEEK
   + INCOME16 # TOTAL FAMILY INCOME
   + RINCOM16 # Respondant's income
-  + SNSMOTH1 # DO YOU USE ANY OTHER SOCIAL NETWORKS
+  + flg_uses_specific_sns
+  + nr_unique_specific_sns
   + total_internet_time*flg_is_male*flg_is_white
   + SNSMYEAR # SNSMYEAR
   + HOMPOP
