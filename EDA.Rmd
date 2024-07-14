@@ -93,17 +93,17 @@ sliced_data <- raw_data %>%
     
     # New Variables to consider
     , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
-    , HEALTH1 #R'S HEALTH IN GENERAL
-    , HLTHCOVR #R HAS HEALTH INSURANCE COVERAGE
-    , HLTHINSR #HAVE HEALTH INSURANCE
-    , MNTLDIF #HOW DIFFICULT TO GET MENTAL HEALTH CARE
-    , MHTREATD #R EVER TREATED FOR MH PROBLEM
-    , SMOKE #DOES R SMOKE
-    , DRINK #EVER DRINK ALCOHOLIC BEVERAGES?
-    , SLPPRBLM #TROUBLE SLEEPING LAST 12 MONTHS
-    , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED
-    , JOBKEEP #JOB SECURITY
-    , JOBSEC #NO DANGER OF BEING FIRED //// Both job sec var have most missing values 
+    #, HEALTH1 #R'S HEALTH IN GENERAL                                                           Too many NAS
+    #, HLTHCOVR #R HAS HEALTH INSURANCE COVERAGE                                                Too many NAS
+    #, HLTHINSR #HAVE HEALTH INSURANCE                                                          Too many NAS
+    #, MNTLDIF #HOW DIFFICULT TO GET MENTAL HEALTH CARE                                         Too many NAS
+    #, MHTREATD #R EVER TREATED FOR MH PROBLEM                                                  Too many NAS
+    #, SMOKE #DOES R SMOKE                                                                      Too many NAS
+    #, DRINK #EVER DRINK ALCOHOLIC BEVERAGES?                                                   Too many NAS
+    #, SLPPRBLM #TROUBLE SLEEPING LAST 12 MONTHS                                                Too many NAS
+    , EDUC #HIGHEST YEAR OF SCHOOL COMPLETED                                      
+    #, JOBKEEP #JOB SECURITY                                                                    Too many NAS
+    #, JOBSEC #NO DANGER OF BEING FIRED                                                         Too many NAS
     , SPWRKSTA #SPOUSE LABOR FORCE STATUS
     , MARITAL #MARITAL STATUS
   )
@@ -411,7 +411,7 @@ data$flg_is_male <- ifelse(data$SEX == 1,1,0)
 
 ```{r}
 ols1 = lm(
-  MNTLHLTH
+  MNTLHLTH  
   ~ BORN
   + REGION
   + WRKSTAT  # LABOR FORCE STATUS
@@ -433,7 +433,7 @@ stargazer(ols1,
 
 ```{r}
 ols1 = lm(
-  DEPRESS
+  MNTLHLTH
   ~ BORN
   + REGION
   + WRKSTAT  # LABOR FORCE STATUS
@@ -443,6 +443,8 @@ ols1 = lm(
   + SNSMOTH1 # DO YOU USE ANY OTHER SOCIAL NETWORKS
   + total_internet_time*flg_is_male*flg_is_white
   + SNSMYEAR # SNSMYEAR
+  + HOMPOP
+  + HEALTH1
   , data=data)
 
 stargazer(ols1,
