@@ -88,12 +88,7 @@ data <- data %>%
     , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
     , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
     , MNTLHLTH #  DAYS OF POOR MENTAL HEALTH PAST 30 DAYS
-    , RHEIGHT   # R IS HOW TALL
-    #, LIFENOW  # R'S RATING OF LIFE OVERALL NOW FROM 0-10
-    #, DEPRESS  # TOLD HAVE DEPRESSION
-    #, HLTHPHYS # R'S PHYSICAL HEALTH
-    #, QUALLIFE # R'S QUALITY OF LIFE
-    #, HLTHMNTL # R'S MENTAL HEALTH, MOOD, AND ABILITY TO THINK.        
+    , RWEIGHT   # 
     , TWITTER  # CREATE DUMMY VARIABLE FOR THESE. IF ANY IS TRUE, MAKE IT 1, ELSE 0
     , LINKEDIN
     , SNAPCHAT
@@ -231,16 +226,6 @@ ggplot(data, aes(x = total_internet_time)) +
   labs(title = "Distribution of minutes of internet usage per weekends", x = "Hours", y = "Count") +
   theme_minimal()
 ```
-
-```{r}
-#    , SNSMNEW  # WHICH SOCIAL NETWORK DID YOU JOIN MOST RECENTLY
-
-# Create a bar plot using ggplot2
-ggplot(data, aes(x = SNSMYEAR)) +
-  geom_bar(fill = "skyblue") +
-  labs(title = "Count of Categories", x = "Category", y = "Count") +
-  theme_minimal()
-```
 Next, we plot the count of RACE responses from the survey
 
 ```{r}
@@ -281,7 +266,7 @@ counts <- colSums(data[, c("flg_uses_twitter", "flg_uses_linkedin", "flg_uses_sn
 
 # Plot the counts
 barplot(counts, main="Count of 1s for each Social Media Platform", 
-        xlab="Platform", ylab="Count of 1s", col="blue", names.arg=c("Twitter", "LinkedIn", "Snapchat", "Instagram", "Facebook"))
+        xlab="Platform", ylab="Count of 1s", col="lightblue", names.arg=c("Twitter", "LinkedIn", "Snapchat", "Instagram", "Facebook"))
 
 ```
 
@@ -582,7 +567,8 @@ ols1 = lm(
   + RINCOM16 # Respondant's income
   + SNSMOTH1 # DO YOU USE ANY OTHER SOCIAL NETWORKS
   + total_internet_time*flg_is_male*flg_is_white
-  + SNSMYEAR # SNSMYEAR
+  + flg_uses_specific_sns
+  + nr_unique_specific_sns
   , data=data)
 
 stargazer(ols1,
