@@ -724,10 +724,98 @@ ggplot(filtered_data, aes(y = HOMPOP)) +
 
 Moving on to EDUC, we have the following.
 ```{r}
+# Check the type of EDUC
+educ_type <- typeof(filtered_data$EDUC)
+print(paste("Type of EDUC:", educ_type))
 
+# Check for missing values in EDUC
+missing_educ <- sum(is.na(filtered_data$EDUC))
+print(paste("Number of missing EDUC values:", missing_educ))
+
+# Show labels of EDUC
+educ_labels <- attr(filtered_data$EDUC, "labels")
+print("Labels for EDUC:")
+print(educ_labels)
 ```
 
+```{r}
+# Define the mapping of numeric values to education levels
+education_levels <- c(
+  "No formal schooling", "1st grade", "2nd grade", "3rd grade", "4th grade",
+  "5th grade", "6th grade", "7th grade", "8th grade", "9th grade",
+  "10th grade", "11th grade", "12th grade", "1 year of college", "2 years",
+  "3 years", "4 years", "5 years", "6 years", "7 years", "8 years",
+  "Don't know", "No answer"
+)
 
+# Replace the numeric values with descriptions
+filtered_data$EDUC <- factor(filtered_data$EDUC, levels = 0:20, labels = education_levels[1:21])
+filtered_data$EDUC[filtered_data$EDUC == 98] <- "Don't know"
+filtered_data$EDUC[filtered_data$EDUC == 99] <- "No answer"
+
+# Visualize the distribution of EDUC with a bar plot
+ggplot(filtered_data, aes(x = EDUC, fill = EDUC)) +
+  geom_bar() +
+  labs(title = "Distribution of EDUC", x = "Education Level", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Looking at Spouse's level of education
+```{r}
+# Check the type of SPWRKSTA
+spwrksta_type <- typeof(filtered_data$SPWRKSTA)
+print(paste("Type of SPWRKSTA:", spwrksta_type))
+
+# Check for missing values in SPWRKSTA
+missing_spwrksta <- sum(is.na(filtered_data$SPWRKSTA))
+print(paste("Number of missing SPWRKSTA values:", missing_spwrksta))
+
+# Show labels of SPWRKSTA
+spwrksta_labels <- attr(filtered_data$SPWRKSTA, "labels")
+print("Labels for SPWRKSTA:")
+print(spwrksta_labels)
+```
+
+We change the type to the correct one and add new categorizations
+```{r}
+# Convert SPWRKSTA to a factor using the labels
+filtered_data$SPWRKSTA <- factor(filtered_data$SPWRKSTA, 
+                                 levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9), 
+                                 labels = c("WORKING FULLTIME", "WORKING PARTTIME", "TEMP NOT WORKING", 
+                                            "UNEMPL, LAID OFF", "RETIRED", "SCHOOL", "KEEPING HOUSE", "OTHER", "NA"))
+
+# Verify the conversion
+print(levels(filtered_data$SPWRKSTA))
+
+# Re-categorize SPWRKSTA, combining "Other" with "Unemployed"
+filtered_data$SPWRKSTA <- recode(
+  filtered_data$SPWRKSTA,
+  `WORKING FULLTIME` = "Employed",
+  `WORKING PARTTIME` = "Employed",
+  `UNEMPL, LAID OFF` = "Unemployed",
+  `TEMP NOT WORKING` = "Unemployed",
+  `RETIRED` = "Retired",
+  `SCHOOL` = "Student",
+  `KEEPING HOUSE` = "Homemaker",
+  `OTHER` = "Unemployed",
+  `NA` = NA_character_
+)
+
+# Verify the recategorization
+table(filtered_data$SPWRKSTA)
+```
+Some visualisations
+```{r}
+# Visualize the distribution of SPWRKSTA with a bar plot
+ggplot(filtered_data, aes(x = SPWRKSTA, fill = SPWRKSTA)) +
+  geom_bar() +
+  labs(title = "Distribution of SPWRKSTA", x = "Spouse Labor Force Status", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
 
 
