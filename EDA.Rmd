@@ -30,7 +30,7 @@ library(naniar)
 ```
 
 ```{r}
-# Change this if you saves the file in a different path
+# Change this if you saves the file in a different pat
 file = "gss_spss_with_codebook/GSS7218_R3.sav"
 
 # Read the data file
