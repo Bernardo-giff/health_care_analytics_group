@@ -681,8 +681,42 @@ ggplot(filtered_data, aes(x = SPWRKSTA, fill = SPWRKSTA)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+We need to impute the missing values as they make up a huge proportion of the total observations. Will will impute the missing values randomly based on the distribution as follows.
 
-hsjsjs
+```{r}
+# Calculate the probabilities of each category in SPWRKSTA
+spwrksta_probs <- prop.table(table(filtered_data$SPWRKSTA))
+print(spwrksta_probs)
+
+# Impute missing values randomly based on the distribution
+set.seed(123)  # For reproducibility
+filtered_data$SPWRKSTA[is.na(filtered_data$SPWRKSTA)] <- sample(
+  names(spwrksta_probs), 
+  sum(is.na(filtered_data$SPWRKSTA)), 
+  replace = TRUE, 
+  prob = spwrksta_probs
+)
+
+# Verify the imputation
+missing_spwrksta_after <- sum(is.na(filtered_data$SPWRKSTA))
+print(paste("Number of missing SPWRKSTA values after imputation:", missing_spwrksta_after))
+
+```
+
+Let's visualise it again
+```{r}
+# Visualize the distribution of SPWRKSTA with a bar plot
+ggplot(filtered_data, aes(x = SPWRKSTA, fill = SPWRKSTA)) +
+  geom_bar() +
+  labs(title = "Distribution of SPWRKSTA", x = "Spouse Labor Force Status", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+
+
 
 
 # Modeling
