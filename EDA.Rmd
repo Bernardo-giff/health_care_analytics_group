@@ -299,7 +299,7 @@ sliced_data <- filtered_data %>%
     , MAEDUC   # HIGHEST YEAR SCHOOL COMPLETED, MOTHER
     , SEXSEX   # Sex of sex partners in the last year
     , PRES16   # How voted for (i.e: liberal or not)
-    , 
+    ## So I did ID up to Region. 
     
     # New Variables to consider
     , HOMPOP #NUMBER OF PERSONS IN HOUSEHOLD
