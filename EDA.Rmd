@@ -579,12 +579,37 @@ ggplot(filtered_data, aes(y = HRS1)) +
 
 ```
 
-Ok let's move on to Sex.
+Ok let's move on to the variable SEX.
 ```{r}
+# Check the type of SEX
+sex_type <- typeof(filtered_data$SEX)
+print(paste("Type of SEX:", sex_type))
+
+# Check for missing values in SEX
+missing_sex <- sum(is.na(filtered_data$SEX))
+print(paste("Number of missing SEX values:", missing_sex))
+
+# Show labels of SEX
+sex_labels <- attr(filtered_data$SEX, "labels")
+print("Labels for SEX:")
+print(sex_labels)
+```
+
+Let's convert to the right type and look at its distribution
+```{r}
+# Convert SEX to a factor to use labels
+filtered_data$SEX <- factor(filtered_data$SEX, levels = c(1, 2), labels = c("MALE", "FEMALE"))
+
+# Visualize the distribution of SEX with a bar plot
+ggplot(filtered_data, aes(x = SEX, fill = SEX)) +
+  geom_bar() +
+  labs(title = "Distribution of SEX", x = "Sex", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
 
 ```
 
-
+Moving on to the next variable, we have Born.
 
 
 # Modeling
