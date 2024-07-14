@@ -550,37 +550,37 @@ ggplot(data, aes(x = REGION, fill = REGION)) +
 Moving onto Number of persons in a household (HOMPOP)
 ```{r}
 # Check the type of HOMPOP
-hompop_type <- typeof(filtered_data$HOMPOP)
+hompop_type <- typeof(data$HOMPOP)
 print(paste("Type of HOMPOP:", hompop_type))
 
 # Check for missing values in HOMPOP
-missing_hompop <- sum(is.na(filtered_data$HOMPOP))
+missing_hompop <- sum(is.na(data$HOMPOP))
 print(paste("Number of missing HOMPOP values:", missing_hompop))
 
 # Summary statistics for HOMPOP
-summary(filtered_data$HOMPOP)
+summary(data$HOMPOP)
 ```
 
 ```{r}
 # Check unique values of HOMPOP
-unique_hompop_values <- unique(filtered_data$HOMPOP)
+unique_hompop_values <- unique(data$HOMPOP)
 print("Unique values of HOMPOP:")
 print(unique_hompop_values)
 ```
 
 ```{r}
 # Remove 'DK' and 'NA' values if they exist in the data
-filtered_data <- filtered_data[!filtered_data$HOMPOP %in% c(98, 99), ]
+data <- data[!data$HOMPOP %in% c(98, 99), ]
 
 # Visualize the distribution of HOMPOP with a histogram (discrete bins)
-ggplot(filtered_data, aes(x = as.factor(HOMPOP), fill = as.factor(HOMPOP))) +
+ggplot(data, aes(x = as.factor(HOMPOP), fill = as.factor(HOMPOP))) +
   geom_bar() +
   labs(title = "Distribution of HOMPOP", x = "Number of Persons in Household", y = "Count") +
   theme_minimal() +
   scale_fill_brewer(palette = "Set3")
 
 # Create a box plot for HOMPOP
-ggplot(filtered_data, aes(y = HOMPOP)) +
+ggplot(data, aes(y = HOMPOP)) +
   geom_boxplot(fill = "orange", color = "black") +
   labs(title = "Box Plot of HOMPOP", y = "Number of Persons in Household") +
   theme_minimal()
@@ -589,55 +589,55 @@ ggplot(filtered_data, aes(y = HOMPOP)) +
 Moving on to EDUC, we have the following.
 ```{r}
 # Check the type of EDUC
-educ_type <- typeof(filtered_data$EDUC)
-print(paste("Type of EDUC:", educ_type))
+#educ_type <- typeof(data$EDUC)
+#print(paste("Type of EDUC:", educ_type))
 
 # Check for missing values in EDUC
-missing_educ <- sum(is.na(filtered_data$EDUC))
-print(paste("Number of missing EDUC values:", missing_educ))
+#missing_educ <- sum(is.na(data$EDUC))
+#print(paste("Number of missing EDUC values:", missing_educ))
 
 # Show labels of EDUC
-educ_labels <- attr(filtered_data$EDUC, "labels")
-print("Labels for EDUC:")
-print(educ_labels)
+#educ_labels <- attr(data$EDUC, "labels")
+#print("Labels for EDUC:")
+#print(educ_labels)
 ```
 
 ```{r}
 # Define the mapping of numeric values to education levels
-education_levels <- c(
+#education_levels <- c(
   "No formal schooling", "1st grade", "2nd grade", "3rd grade", "4th grade",
   "5th grade", "6th grade", "7th grade", "8th grade", "9th grade",
   "10th grade", "11th grade", "12th grade", "1 year of college", "2 years",
   "3 years", "4 years", "5 years", "6 years", "7 years", "8 years",
   "Don't know", "No answer"
-)
+#)
 
 # Replace the numeric values with descriptions
-filtered_data$EDUC <- factor(filtered_data$EDUC, levels = 0:20, labels = education_levels[1:21])
-filtered_data$EDUC[filtered_data$EDUC == 98] <- "Don't know"
-filtered_data$EDUC[filtered_data$EDUC == 99] <- "No answer"
+#data$EDUC <- factor(data$EDUC, levels = 0:20, labels = education_levels[1:21])
+#data$EDUC[data$EDUC == 98] <- "Don't know"
+#data$EDUC[data$EDUC == 99] <- "No answer"
 
 # Visualize the distribution of EDUC with a bar plot
-ggplot(filtered_data, aes(x = EDUC, fill = EDUC)) +
-  geom_bar() +
-  labs(title = "Distribution of EDUC", x = "Education Level", y = "Count") +
-  theme_minimal() +
-  scale_fill_brewer(palette = "Set3") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+#ggplot(data, aes(x = EDUC, fill = EDUC)) +
+  #geom_bar() +
+  #labs(title = "Distribution of EDUC", x = "Education Level", y = "Count") +
+  #theme_minimal() +
+  #scale_fill_brewer(palette = "Set3") +
+  #theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
 Looking at Spouse's level of education
 ```{r}
 # Check the type of SPWRKSTA
-spwrksta_type <- typeof(filtered_data$SPWRKSTA)
+spwrksta_type <- typeof(data$SPWRKSTA)
 print(paste("Type of SPWRKSTA:", spwrksta_type))
 
 # Check for missing values in SPWRKSTA
-missing_spwrksta <- sum(is.na(filtered_data$SPWRKSTA))
+missing_spwrksta <- sum(is.na(data$SPWRKSTA))
 print(paste("Number of missing SPWRKSTA values:", missing_spwrksta))
 
 # Show labels of SPWRKSTA
-spwrksta_labels <- attr(filtered_data$SPWRKSTA, "labels")
+spwrksta_labels <- attr(data$SPWRKSTA, "labels")
 print("Labels for SPWRKSTA:")
 print(spwrksta_labels)
 ```
@@ -645,17 +645,17 @@ print(spwrksta_labels)
 We change the type to the correct one and add new categorizations
 ```{r}
 # Convert SPWRKSTA to a factor using the labels
-filtered_data$SPWRKSTA <- factor(filtered_data$SPWRKSTA, 
+data$SPWRKSTA <- factor(data$SPWRKSTA, 
                                  levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9), 
                                  labels = c("WORKING FULLTIME", "WORKING PARTTIME", "TEMP NOT WORKING", 
                                             "UNEMPL, LAID OFF", "RETIRED", "SCHOOL", "KEEPING HOUSE", "OTHER", "NA"))
 
 # Verify the conversion
-print(levels(filtered_data$SPWRKSTA))
+print(levels(data$SPWRKSTA))
 
 # Re-categorize SPWRKSTA, combining "Other" with "Unemployed"
-filtered_data$SPWRKSTA <- recode(
-  filtered_data$SPWRKSTA,
+data$SPWRKSTA <- recode(
+  data$SPWRKSTA,
   `WORKING FULLTIME` = "Employed",
   `WORKING PARTTIME` = "Employed",
   `UNEMPL, LAID OFF` = "Unemployed",
@@ -668,12 +668,12 @@ filtered_data$SPWRKSTA <- recode(
 )
 
 # Verify the recategorization
-table(filtered_data$SPWRKSTA)
+table(data$SPWRKSTA)
 ```
 Some visualisations
 ```{r}
 # Visualize the distribution of SPWRKSTA with a bar plot
-ggplot(filtered_data, aes(x = SPWRKSTA, fill = SPWRKSTA)) +
+ggplot(data, aes(x = SPWRKSTA, fill = SPWRKSTA)) +
   geom_bar() +
   labs(title = "Distribution of SPWRKSTA", x = "Spouse Labor Force Status", y = "Count") +
   theme_minimal() +
@@ -685,20 +685,20 @@ We need to impute the missing values as they make up a huge proportion of the to
 
 ```{r}
 # Calculate the probabilities of each category in SPWRKSTA
-spwrksta_probs <- prop.table(table(filtered_data$SPWRKSTA))
+spwrksta_probs <- prop.table(table(data$SPWRKSTA))
 print(spwrksta_probs)
 
 # Impute missing values randomly based on the distribution
 set.seed(123)  # For reproducibility
-filtered_data$SPWRKSTA[is.na(filtered_data$SPWRKSTA)] <- sample(
+data$SPWRKSTA[is.na(data$SPWRKSTA)] <- sample(
   names(spwrksta_probs), 
-  sum(is.na(filtered_data$SPWRKSTA)), 
+  sum(is.na(data$SPWRKSTA)), 
   replace = TRUE, 
   prob = spwrksta_probs
 )
 
 # Verify the imputation
-missing_spwrksta_after <- sum(is.na(filtered_data$SPWRKSTA))
+missing_spwrksta_after <- sum(is.na(data$SPWRKSTA))
 print(paste("Number of missing SPWRKSTA values after imputation:", missing_spwrksta_after))
 
 ```
@@ -706,7 +706,7 @@ print(paste("Number of missing SPWRKSTA values after imputation:", missing_spwrk
 Let's visualise it again
 ```{r}
 # Visualize the distribution of SPWRKSTA with a bar plot
-ggplot(filtered_data, aes(x = SPWRKSTA, fill = SPWRKSTA)) +
+ggplot(data, aes(x = SPWRKSTA, fill = SPWRKSTA)) +
   geom_bar() +
   labs(title = "Distribution of SPWRKSTA", x = "Spouse Labor Force Status", y = "Count") +
   theme_minimal() +
@@ -717,15 +717,15 @@ ggplot(filtered_data, aes(x = SPWRKSTA, fill = SPWRKSTA)) +
 Let's look at Marital Status
 ```{r}
 # Check the type of MARITAL
-marital_type <- typeof(filtered_data$MARITAL)
+marital_type <- typeof(data$MARITAL)
 print(paste("Type of MARITAL:", marital_type))
 
 # Check for missing values in MARITAL
-missing_marital <- sum(is.na(filtered_data$MARITAL))
+missing_marital <- sum(is.na(data$MARITAL))
 print(paste("Number of missing MARITAL values:", missing_marital))
 
 # Show labels of MARITAL
-marital_labels <- attr(filtered_data$MARITAL, "labels")
+marital_labels <- attr(data$MARITAL, "labels")
 print("Labels for MARITAL:")
 print(marital_labels)
 
@@ -733,21 +733,21 @@ print(marital_labels)
 We make sure we do the right conversion and visualisations
 ```{r}
 # Convert MARITAL to a factor using the labels
-filtered_data$MARITAL <- factor(filtered_data$MARITAL, 
+data$MARITAL <- factor(data$MARITAL, 
                                 levels = c(1, 2, 3, 4, 5, 9), 
                                 labels = c("Married", "Widowed", "Divorced", "Separated", "Never Married", "NA"))
 
 # Verify the conversion
-print(levels(filtered_data$MARITAL))
+print(levels(data$MARITAL))
 
 # Remove rows with special codes in MARITAL
-filtered_data <- filtered_data[filtered_data$MARITAL != "NA", ]
+data <- data[data$MARITAL != "NA", ]
 
 # Verify the changes
-summary(filtered_data$MARITAL)
+summary(data$MARITAL)
 
 # Visualize the distribution of MARITAL with a bar plot
-ggplot(filtered_data, aes(x = MARITAL, fill = MARITAL)) +
+ggplot(data, aes(x = MARITAL, fill = MARITAL)) +
   geom_bar() +
   labs(title = "Distribution of MARITAL", x = "Marital Status", y = "Count") +
   theme_minimal() +
