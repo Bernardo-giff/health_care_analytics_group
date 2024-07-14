@@ -642,6 +642,48 @@ ggplot(filtered_data, aes(x = BORN, fill = BORN)) +
 
 ```
 
+Moving onto region variable
+```{r}
+# Check the type of REGION
+region_type <- typeof(filtered_data$REGION)
+print(paste("Type of REGION:", region_type))
+
+# Check for missing values in REGION
+missing_region <- sum(is.na(filtered_data$REGION))
+print(paste("Number of missing REGION values:", missing_region))
+
+# Show labels of REGION
+region_labels <- attr(filtered_data$REGION, "labels")
+print("Labels for REGION:")
+print(region_labels)
+
+```
+Doing the right conversions and visualizing the variable, we have the following.
+```{r}
+# Convert REGION to a factor to use labels
+filtered_data$REGION <- factor(filtered_data$REGION, 
+                               levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9), 
+                               labels = c("NEW ENGLAND", "MIDDLE ATLANTIC", "E. NOR. CENTRAL", "W. NOR. CENTRAL", 
+                                          "SOUTH ATLANTIC", "E. SOU. CENTRAL", "W. SOU. CENTRAL", "MOUNTAIN", "PACIFIC"))
+
+# Verify the conversion
+print(levels(filtered_data$REGION))
+
+# Visualize the distribution of REGION with a bar plot
+ggplot(filtered_data, aes(x = REGION, fill = REGION)) +
+  geom_bar() +
+  labs(title = "Distribution of REGION", x = "Region", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+
+
+
 
 
 
