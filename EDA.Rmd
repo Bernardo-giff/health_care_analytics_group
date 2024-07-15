@@ -1538,10 +1538,39 @@ stargazer(vif_model1,
           single.row = TRUE,
           header = FALSE,
           title = "Regression")
-
 ```
 
 
+## Model 6
+
+```{r}
+# Create interaction terms for EDUC, PAEDUC, and MAEDUC
+data$EDUC_PAEDUC <- interaction(data$EDUC, data$PAEDUC)
+data$EDUC_MAEDUC <- interaction(data$EDUC, data$MAEDUC)
+data$PAEDUC_MAEDUC <- interaction(data$PAEDUC, data$MAEDUC)
+
+# Fit the model with interaction terms
+vif_model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+                        + flg_uses_specific_sns 
+                        + total_internet_time
+                        + WRKSTAT
+                        + HRS1
+                        + SEXSEX
+                        + HOMPOP
+                        + SPWRKSTA
+                        + MARITAL
+                        + flg_is_male  ## REPLACE BY THE FLAGS
+                        + flg_is_white ## REPLACE BY THE FLAGS
+                        + INCOME16
+                 , data = data)
+
+stargazer(vif_model1,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Regression")
+```
+```
 
 
 
