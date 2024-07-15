@@ -1320,7 +1320,7 @@ main_model <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + EDUC 
@@ -1344,8 +1344,7 @@ model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + HRS1
              + REGION
              + CHILDS
-             + PAEDUC
-             + MAEDUC
+             + parent_education
              + HOMPOP
              + EDUC
              + SPWRKSTA
@@ -1355,7 +1354,7 @@ model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + RINCOM16
              + INCOME16
              + REGION
-             + PAEDUC * MAEDUC, data = data)
+             + parent_education * EDUC, data = data)
 
 summary(model1)
 
@@ -1385,7 +1384,7 @@ model2 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + REGION
@@ -1418,7 +1417,7 @@ model3 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + REGION
@@ -1453,7 +1452,7 @@ model4 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + REGION
@@ -1485,7 +1484,7 @@ model5 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + REGION
@@ -1529,26 +1528,23 @@ print(vif_values)
 
 ## Model after vif 1
 ```{r}
-# Create interaction terms for EDUC, PAEDUC, and MAEDUC
-data$EDUC_PAEDUC <- interaction(data$EDUC, data$PAEDUC)
-data$EDUC_MAEDUC <- interaction(data$EDUC, data$MAEDUC)
-data$PAEDUC_MAEDUC <- interaction(data$PAEDUC, data$MAEDUC)
+
 
 # Fit the model with interaction terms
 vif_model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
                         + flg_uses_specific_sns 
                         + total_internet_time
+                        + total_internet_time * flg_uses_specific_sns
                         + WRKSTAT
                         + HRS1
-                        + EDUC_PAEDUC
-                        + EDUC_MAEDUC   ## MERGE ALL PARENTS EDUC INTO 3 CATEGORIES
-                        + PAEDUC_MAEDUC ## MERGE ALL PARENTS EDUC INTO 3 CATEGORIES
-                        + SEXSEX
+                        + EDUC
+                        + parent_education ## MERGE ALL PARENTS EDUC INTO 3 CATEGORIES
+                        #+ SEXSEX
                         + HOMPOP
                         + SPWRKSTA
                         + MARITAL
                         + SEX  ## REPLACE BY THE FLAGS
-                        + RACE ## REPLACE BY THE FLAGS
+                        + flg_is_white ## REPLACE BY THE FLAGS
                         + RINCOM16, data = data)
 
 stargazer(vif_model1,
