@@ -1245,8 +1245,8 @@ stargazer(ols1,
 
 
 ```{r}
-# Basic Model with Demographic and Socioeconomic Variables
-model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+# Comprehensive Model with Demographic and Socioeconomic Variables
+main_model <- lm(MNTLHLTH ~ nr_unique_specific_sns 
              + flg_uses_specific_sns 
              + total_internet_time
              + WRKSTAT
@@ -1255,8 +1255,8 @@ model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + CHILDS
              + PAEDUC
              + MAEDUC
-             #+ SEXSEX_FACTOR
-             #+ PRES16_FACTOR
+             + SEXSEX
+             #+ PRES16
              + HOMPOP
              + EDUC
              + SPWRKSTA
@@ -1269,17 +1269,198 @@ model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + REGION, data = data)
 
 
+stargazer(main_model,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Regression")
+```
+
+
+Model 1
+```{r}
+model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+             + flg_uses_specific_sns 
+             + total_internet_time
+             + WRKSTAT
+             + HRS1
+             + REGION
+             + CHILDS
+             + PAEDUC
+             + MAEDUC
+             + HOMPOP
+             + EDUC
+             + SPWRKSTA
+             + MARITAL
+             + SEX 
+             + RACE 
+             + RINCOM16
+             + INCOME16
+             + REGION
+             + PAEDUC * MAEDUC, data = data)
+
+
+
 stargazer(model1,
           type="text",
           single.row = TRUE,
           header = FALSE,
-          title = "Simple regression - No changes")
+          title = "Regression")
 ```
 
 
-nr_unique_specific_sns 
-flg_uses_specific_sns 
-total_internet_time
+
+
+Model 2
+```{r}
+model2 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+             + flg_uses_specific_sns 
+             + total_internet_time
+             + WRKSTAT
+             + HRS1
+             + REGION
+             + CHILDS
+             + PAEDUC
+             + MAEDUC
+             + HOMPOP
+             + EDUC
+             + SPWRKSTA
+             + MARITAL
+             + SEX 
+             + RACE 
+             + RINCOM16
+             + INCOME16
+             + REGION
+             + total_internet_time * flg_uses_specific_sns, data = data)
+
+
+stargazer(model2,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Regression")
+```
+
+
+
+
+Model 3
+```{r}
+model3 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+             + flg_uses_specific_sns 
+             + total_internet_time
+             + WRKSTAT
+             + HRS1
+             + REGION
+             + CHILDS
+             + PAEDUC
+             + MAEDUC
+             + HOMPOP
+             + EDUC
+             + SPWRKSTA
+             + MARITAL
+             + SEX 
+             + RACE 
+             + RINCOM16
+             + INCOME16
+             + REGION
+             + EDUC * RINCOM16, data = data)
+
+stargazer(model3,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Regression")
+```
+
+
+
+
+
+
+
+Model 4
+```{r}
+model4 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+             + flg_uses_specific_sns 
+             + total_internet_time
+             + WRKSTAT
+             + HRS1
+             + REGION
+             + CHILDS
+             + PAEDUC
+             + MAEDUC
+             + HOMPOP
+             + EDUC
+             + SPWRKSTA
+             + MARITAL
+             + SEX 
+             + RACE 
+             + RINCOM16
+             + INCOME16
+             + REGION
+             + MARITAL * HOMPOP, data = data)
+
+stargazer(model4,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Regression")
+```
+
+
+
+
+Model 5
+```{r}
+model5 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+             + flg_uses_specific_sns 
+             + total_internet_time
+             + WRKSTAT
+             + HRS1
+             + REGION
+             + CHILDS
+             + PAEDUC
+             + MAEDUC
+             + HOMPOP
+             + EDUC
+             + SPWRKSTA
+             + MARITAL
+             + SEX 
+             + RACE 
+             + RINCOM16
+             + INCOME16
+             + REGION
+             + WRKSTAT * HRS1, data = data)
+
+stargazer(model5,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Regression")
+```
+
+
+AIC model
+```{r}
+library("MASS")
+
+# Perform stepwise selection based on AIC
+stepwise_model <- stepAIC(main_model, direction = "both", trace = FALSE)
+
+stargazer(stepwise_model,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Regression")
+
+# Print the formula of the selected model
+formula(stepwise_model)
+```
+
+
+
+
 
 
 
