@@ -1022,6 +1022,192 @@ ggplot(data, aes(x = PAEDUC, fill = PAEDUC)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
+Let's look at MAEDUC
+```{r}
+# Check the type of MAEDUC
+maeduc_type <- class(data$MAEDUC)
+print(paste("Type of MAEDUC:", maeduc_type))
+
+# Check for missing values in MAEDUC
+missing_maeduc <- sum(is.na(data$MAEDUC))
+print(paste("Number of missing MAEDUC values:", missing_maeduc))
+
+# Summary statistics for MAEDUC
+summary_maeduc <- summary(data$MAEDUC)
+print("Summary statistics for MAEDUC:")
+print(summary_maeduc)
+
+# Display unique values in MAEDUC
+unique_maeduc <- unique(data$MAEDUC)
+print("Unique values of MAEDUC:")
+print(unique_maeduc)
+
+```
+
+Necessary conversions
+```{r}
+# Define the mapping of numeric values to education levels
+maeduc_labels <- c(
+  "No formal schooling", "1st grade", "2nd grade", "3rd grade", "4th grade",
+  "5th grade", "6th grade", "7th grade", "8th grade", "9th grade",
+  "10th grade", "11th grade", "12th grade", "1 year of college", "2 years of college",
+  "3 years of college", "4 years of college", "5 years of college", 
+  "6 years of college", "7 years of college", "8 years of college"
+)
+
+# Replace the numeric values with descriptions
+data$MAEDUC <- factor(data$MAEDUC, levels = c(0:20, 97, 98, 99), labels = c(maeduc_labels, "Not applicable", "Don't know", "No answer"))
+
+# Verify the conversion
+print(levels(data$MAEDUC))
+```
+
+Handling missing values as follows
+```{r}
+
+# Calculate the observed probabilities of each education level
+maeduc_probs <- prop.table(table(data$MAEDUC, useNA = "no"))
+
+# Display the probabilities
+print(maeduc_probs)
+
+# Find indices of missing values
+missing_indices_maeduc <- which(is.na(data$MAEDUC))
+
+# Sample from the education levels based on the observed probabilities
+set.seed(42) # For reproducibility
+imputed_values_maeduc <- sample(names(maeduc_probs), length(missing_indices_maeduc), replace = TRUE, prob = maeduc_probs)
+
+# Impute the missing values
+data$MAEDUC[missing_indices_maeduc] <- imputed_values_maeduc
+
+# Verify the imputation
+summary(data$MAEDUC)
+```
+
+Visualization
+```{r}
+
+# Visualize the distribution of MAEDUC with a bar plot
+ggplot(data, aes(x = MAEDUC, fill = MAEDUC)) +
+  geom_bar() +
+  labs(title = "Distribution of MAEDUC", x = "Mother's Education Level", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+Let's look at PRES16
+```{r}
+# Check the type of PRES16
+pres16_type <- class(data$PRES16)
+print(paste("Type of PRES16:", pres16_type))
+
+# Check for missing values in PRES16
+missing_pres16 <- sum(is.na(data$PRES16))
+print(paste("Number of missing PRES16 values:", missing_pres16))
+
+# Summary statistics for PRES16
+summary_pres16 <- summary(data$PRES16)
+print("Summary statistics for PRES16:")
+print(summary_pres16)
+
+# Display unique values in PRES16
+unique_pres16 <- unique(data$PRES16)
+print("Unique values of PRES16:")
+print(unique_pres16)
+
+# Inspect the unique values and their counts
+unique_pres16_counts <- table(data$PRES16)
+print("Unique values and their counts in PRES16:")
+print(unique_pres16_counts)
+
+```
+
+We categorize them as follows
+
+
+```{r}
+# Convert PRES16 to a factor using haven::as_factor
+data$PRES16_FACTOR <- haven::as_factor(data$PRES16)
+
+# Check the levels of the new factor variable
+levels(data$PRES16_FACTOR)
+
+# Inspect the unique values and their counts
+table(data$PRES16_FACTOR)
+
+# Recode the factor levels to Liberal, Conservative, and Other
+data$PRES16_CATEGORY <- ifelse(
+  data$PRES16_FACTOR == "Clinton", "Liberal",
+  ifelse(data$PRES16_FACTOR == "Trump", "Conservative", "Other")
+)
+
+# Convert the new variable to a factor
+data$PRES16_CATEGORY <- factor(data$PRES16_CATEGORY)
+
+# Verify the conversion
+levels(data$PRES16_CATEGORY)
+```
+
+Let's look at SEXSEX
+```{r}
+# Check the type of SEXSEX
+sexsex_type <- class(data$SEXSEX)
+print(paste("Type of SEXSEX:", sexsex_type))
+
+# Check for missing values in SEXSEX
+missing_sexsex <- sum(is.na(data$SEXSEX))
+print(paste("Number of missing SEXSEX values:", missing_sexsex))
+
+# Summary statistics for SEXSEX
+summary_sexsex <- summary(data$SEXSEX)
+print("Summary statistics for SEXSEX:")
+print(summary_sexsex)
+
+# Display unique values in SEXSEX
+unique_sexsex <- unique(data$SEXSEX)
+print("Unique values of SEXSEX:")
+print(unique_sexsex)
+```
+We do conversions
+```{r}
+# Convert SEXSEX to a factor using haven::as_factor
+data$SEXSEX_FACTOR <- haven::as_factor(data$SEXSEX)
+
+# Check the levels of the new factor variable
+levels(data$SEXSEX_FACTOR)
+
+# Create a new variable for straight or not
+data$SEX_ORIENTATION <- dplyr::recode(
+  data$SEXSEX_FACTOR,
+  `EXCLUSIVELY MALE` = "Straight",
+  `EXCLUSIVELY FEMALE` = "Straight",
+  `BOTH MALE AND FEMALE` = "Not Straight",
+  `DK` = NA_character_,  # Handle don't know responses as missing
+  `NA` = NA_character_,  # Handle NA responses as missing
+  .default = "Not Straight"
+)
+
+# Convert the new variable to a factor
+data$SEX_ORIENTATION <- factor(data$SEX_ORIENTATION)
+
+# Verify the conversion
+print(levels(data$SEX_ORIENTATION))
+```
+
+ NAs- NEEDS to be redone
+```{r}
+# Check the count of each unique value in SEXSEX
+sexsex_counts <- table(data$SEXSEX_FACTOR)
+print("Counts of each unique value in SEXSEX:")
+print(sexsex_counts)
+
+# Specifically check for missing and "Don't Know" values
+missing_values <- sum(data$SEXSEX_FACTOR == "NA", na.rm = TRUE)
+dk_values <- sum(data$SEXSEX_FACTOR == "DK", na.rm = TRUE)
+print(paste("Number of 'NA' values:", missing_values))
+print(paste("Number of 'Don't Know' (DK) values:", dk_values))
+```
 
 
 
