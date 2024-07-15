@@ -295,7 +295,7 @@ Next, we will look into the income variables. The RINCOM16 variables records the
 ```{r}
 ggplot(data, aes(x = RINCOM16)) +
   geom_histogram(fill = "skyblue", color = "black") +
-  labs(title = "Distribution of minutes of internet usage per weekday", x = "Yearly income", y = "Count") +
+  labs(title = "Distribution of yearly income - Respondant", x = "Yearly income", y = "Count") +
   theme_minimal()
 ```
 
@@ -309,7 +309,7 @@ data$RINCOM16[is.na(data$RINCOM16)] <- mean_income
 
 ggplot(data, aes(x = RINCOM16)) +
   geom_histogram(fill = "skyblue", color = "black") +
-  labs(title = "Distribution of minutes of internet usage per weekday", x = "Yearly income", y = "Count") +
+  labs(title = "Distribution of yearly income - Respondant", x = "Yearly income", y = "Count") +
   theme_minimal()
 ```
 We repeat the same process for the household income:
@@ -317,7 +317,7 @@ We repeat the same process for the household income:
 ```{r}
 ggplot(data, aes(x = INCOME16)) +
   geom_histogram(fill = "skyblue", color = "black") +
-  labs(title = "Distribution of minutes of internet usage per weekday", x = "Yearly income", y = "Count") +
+  labs(title = "Distribution of yearly income - Household", x = "Yearly income", y = "Count") +
   theme_minimal()
 ```
 In this case, there weren't so many missing values. We will try both variables in the regression but likely only keep the household one.
@@ -330,9 +330,40 @@ data$INCOME16[is.na(data$INCOME16)] <- mean_income
 
 ggplot(data, aes(x = INCOME16)) +
   geom_histogram(fill = "skyblue", color = "black") +
-  labs(title = "Distribution of minutes of internet usage per weekday", x = "Yearly income", y = "Count") +
+  labs(title = "Distribution of yearly income - Household", x = "Yearly income", y = "Count") +
   theme_minimal()
 ```
+
+## SEXSEX
+
+Next, we will look into sexual orientation to see if that can also impact the mental health. To this end, we will use the sexsex variable, which is "SEX OF SEX PARTNER'S IN LAST YEAR", and compare it to the sex of the respondant. If they are the same, we will pass false to the flag "is straight"
+
+```{r}
+ggplot(data, aes(x = SEXSEX)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of yearly income - Household", x = "Yearly income", y = "Count") +
+  theme_minimal()
+
+```
+**Note**: 2 stands for both male and female
+
+```{r}
+# creating the is straight flag
+data$flg_is_straight <- ifelse(
+                            (data$SEX == 1 & data$SEXSEX == 1) | (data$SEX == 2 & data$SEXSEX == 3) | data$SEXSEX == 2
+                            , 0
+                            , 1)
+
+# Replace NA values in the 'flg_is_straight' column with 1
+data$flg_is_straight[is.na(data$flg_is_straight)] <- 1
+```
+
+Just to check, we have 96% of the sample being exclusevely straight.
+```{r}
+mean(data$flg_is_straight)
+```
+
+
 
 #EDA (New)
 
@@ -1538,10 +1569,39 @@ stargazer(vif_model1,
           single.row = TRUE,
           header = FALSE,
           title = "Regression")
-
 ```
 
 
+## Model 6
+
+```{r}
+# Create interaction terms for EDUC, PAEDUC, and MAEDUC
+data$EDUC_PAEDUC <- interaction(data$EDUC, data$PAEDUC)
+data$EDUC_MAEDUC <- interaction(data$EDUC, data$MAEDUC)
+data$PAEDUC_MAEDUC <- interaction(data$PAEDUC, data$MAEDUC)
+
+# Fit the model with interaction terms
+vif_model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+                        + flg_uses_specific_sns 
+                        + total_internet_time
+                        + WRKSTAT
+                        + HRS1
+                        + SEXSEX
+                        + HOMPOP
+                        + SPWRKSTA
+                        + MARITAL
+                        + flg_is_male  ## REPLACE BY THE FLAGS
+                        + flg_is_white ## REPLACE BY THE FLAGS
+                        + INCOME16
+                 , data = data)
+
+stargazer(vif_model1,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Regression")
+```
+```
 
 
 
