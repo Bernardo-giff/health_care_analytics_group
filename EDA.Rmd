@@ -714,6 +714,36 @@ ggplot(data, aes(x = EDUC, fill = EDUC)) +
 
 ```
 
+Creating new categories as follows
+```{r}
+# Transform the EDUC variable into the required categories
+data <- data %>%
+  mutate(
+    EDUC = case_when(
+      EDUC %in% c("1st grade", "2nd grade", "3rd grade", "4th grade", "5th grade",
+                  "6th grade", "7th grade", "8th grade", "9th grade", "10th grade",
+                  "11th grade") ~ "No Education",
+      EDUC == "12th grade" ~ "Secondary Education",
+      EDUC %in% c("1 year of college", "2 years of college", "3 years of college",
+                  "4 years of college", "5 years of college", "6 years of college",
+                  "7 years of college", "8 years of college") ~ "College Education",
+      TRUE ~ as.character(EDUC)
+    )
+  )
+
+# Visualize the distribution of EDUC with a bar plot
+ggplot(data, aes(x = EDUC, fill = EDUC)) +
+  geom_bar() +
+  labs(title = "Distribution of EDUC", x = "Education Level", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+
+
 Looking at Spouse's level of education
 ```{r}
 # Check the type of SPWRKSTA
@@ -1189,6 +1219,44 @@ ggplot(data, aes(x = MAEDUC, fill = MAEDUC)) +
   scale_fill_brewer(palette = "Set3") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
+Creating the parent's education from both variables above, we have the following.
+```{r}
+# Create the parent_education variable
+data <- data %>%
+  mutate(
+    parent_education = case_when(
+      MAEDUC %in% c("12th grade", "1 year of college", "2 years of college", "3 years of college",
+                    "4 years of college", "5 years of college", "6 years of college", 
+                    "7 years of college", "8 years of college") &
+      PAEDUC %in% c("12th grade", "1 year of college", "2 years of college", "3 years of college",
+                    "4 years of college", "5 years of college", "6 years of college", 
+                    "7 years of college", "8 years of college") ~ "Both Secondary",
+      
+      MAEDUC %in% c("12th grade", "1 year of college", "2 years of college", "3 years of college",
+                    "4 years of college", "5 years of college", "6 years of college", 
+                    "7 years of college", "8 years of college") |
+      PAEDUC %in% c("12th grade", "1 year of college", "2 years of college", "3 years of college",
+                    "4 years of college", "5 years of college", "6 years of college", 
+                    "7 years of college", "8 years of college") ~ "One Secondary",
+      
+      MAEDUC %in% c("No formal schooling", "1st grade", "2nd grade", "3rd grade", "4th grade", 
+                    "5th grade", "6th grade", "7th grade", "8th grade", "9th grade", 
+                    "10th grade", "11th grade") &
+      PAEDUC %in% c("No formal schooling", "1st grade", "2nd grade", "3rd grade", "4th grade", 
+                    "5th grade", "6th grade", "7th grade", "8th grade", "9th grade", 
+                    "10th grade", "11th grade") ~ "None Secondary",
+      
+      TRUE ~ NA_character_
+    )
+  )
+
+# Verify the conversion
+print(data)
+
+```
+
+
+
 Let's look at PRES16
 ```{r}
 # Check the type of PRES16
@@ -1271,25 +1339,20 @@ data$flg_is_straight <- ifelse(data$SEX != data$SEXSEX, 1, 0)
 # Convert SEXSEX to a factor using haven::as_factor
 data$SEXSEX_FACTOR <- haven::as_factor(data$SEXSEX)
 
-# Check the levels of the new factor variable
-levels(data$SEXSEX_FACTOR)
-
-# Create a new variable for straight or not
-data$SEX_ORIENTATION <- dplyr::recode(
-  data$SEXSEX_FACTOR,
-  `EXCLUSIVELY MALE` = "Straight",
-  `EXCLUSIVELY FEMALE` = "Straight",
-  `BOTH MALE AND FEMALE` = "Not Straight",
-  `DK` = NA_character_,  # Handle don't know responses as missing
-  `NA` = NA_character_,  # Handle NA responses as missing
-  .default = "Not Straight"
-)
-
-# Convert the new variable to a factor
-data$SEX_ORIENTATION <- factor(data$SEX_ORIENTATION)
+# Create a new flag variable for straight orientation
+data <- data %>%
+  mutate(
+    SEX = as.character(SEX),
+    SEXSEX = as.character(SEXSEX),
+    flg_is_straight = ifelse(
+      (SEX == "MALE" & SEXSEX == "EXCLUSIVELY FEMALE") |
+      (SEX == "FEMALE" & SEXSEX == "EXCLUSIVELY MALE"),
+      1, 0
+    )
+  )
 
 # Verify the conversion
-print(levels(data$SEX_ORIENTATION))
+print(data)
 ```
 
  NAs- NEEDS to be redone
@@ -1333,7 +1396,7 @@ main_model <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + EDUC 
@@ -1357,18 +1420,17 @@ model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + HRS1
              + REGION
              + CHILDS
-             + PAEDUC
-             + MAEDUC
+             + parent_education
              + HOMPOP
              + EDUC
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + REGION
-             + PAEDUC * MAEDUC, data = data)
+             + parent_education * EDUC, data = data)
 
 summary(model1)
 
@@ -1398,7 +1460,7 @@ model2 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + REGION
@@ -1431,7 +1493,7 @@ model3 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + REGION
@@ -1466,7 +1528,7 @@ model4 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + REGION
@@ -1498,7 +1560,7 @@ model5 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + SPWRKSTA
              + MARITAL
              + SEX 
-             + RACE 
+             + flg_is_white 
              + RINCOM16
              + INCOME16
              + REGION
@@ -1542,26 +1604,23 @@ print(vif_values)
 
 ## Model after vif 1
 ```{r}
-# Create interaction terms for EDUC, PAEDUC, and MAEDUC
-data$EDUC_PAEDUC <- interaction(data$EDUC, data$PAEDUC)
-data$EDUC_MAEDUC <- interaction(data$EDUC, data$MAEDUC)
-data$PAEDUC_MAEDUC <- interaction(data$PAEDUC, data$MAEDUC)
+
 
 # Fit the model with interaction terms
 vif_model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
                         + flg_uses_specific_sns 
                         + total_internet_time
+                        + total_internet_time * flg_uses_specific_sns
                         + WRKSTAT
                         + HRS1
-                        + EDUC_PAEDUC
-                        + EDUC_MAEDUC   ## MERGE ALL PARENTS EDUC INTO 3 CATEGORIES
-                        + PAEDUC_MAEDUC ## MERGE ALL PARENTS EDUC INTO 3 CATEGORIES
-                        + SEXSEX
+                        + EDUC
+                        + parent_education ## MERGE ALL PARENTS EDUC INTO 3 CATEGORIES
+                        #+ SEXSEX
                         + HOMPOP
                         + SPWRKSTA
                         + MARITAL
                         + SEX  ## REPLACE BY THE FLAGS
-                        + RACE ## REPLACE BY THE FLAGS
+                        + flg_is_white ## REPLACE BY THE FLAGS
                         + RINCOM16, data = data)
 
 stargazer(vif_model1,
