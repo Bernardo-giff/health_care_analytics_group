@@ -771,6 +771,149 @@ ggplot(data, aes(x = MARITAL, fill = MARITAL)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+Let's look at INCOME16 (income of household) and format it correctly
+```{r}
+# Define the mapping of numeric values to income categories
+income_labels <- c(
+  "UNDER $1,000", "$1,000 to $2,999", "$3,000 to $3,999", "$4,000 to $4,999", "$5,000 to $5,999",
+  "$6,000 to $6,999", "$7,000 to $7,999", "$8,000 to $9,999", "$10,000 to $12,499", "$12,500 to $14,999",
+  "$15,000 to $17,499", "$17,500 to $19,999", "$20,000 to $22,499", "$22,500 to $24,999", "$25,000 to $29,999",
+  "$30,000 to $34,999", "$35,000 to $39,999", "$40,000 to $49,999", "$50,000 to $59,999", "$60,000 to $74,999",
+  "$75,000 to $89,999", "$90,000 to $109,999", "$110,000 to $129,999", "$130,000 to $149,999", "$150,000 or over",
+  "$170,000 or over", "Refused", "Don't know", "No answer", "Not Applicable"
+)
+
+# Replace the numeric values with descriptions
+data$INCOME16 <- factor(data$INCOME16, levels = c(1:27, 98, 99, 0), labels = income_labels)
+
+# Verify the conversion
+print(levels(data$INCOME16))
+```
+Let's look further
+```{r}
+# Check the type of INCOME16
+income16_type <- class(data$INCOME16)
+print(paste("Type of INCOME16:", income16_type))
+
+# Check for missing values in INCOME16
+missing_income16 <- sum(is.na(data$INCOME16))
+print(paste("Number of missing INCOME16 values:", missing_income16))
+
+# Summary statistics for INCOME16 (displaying counts for each category)
+summary_income16 <- summary(data$INCOME16)
+print("Summary statistics for INCOME16:")
+print(summary_income16)
+```
+
+Imputing the missing values based on probabilities
+```{r}
+# Calculate the observed probabilities of each income category
+income_probs <- prop.table(table(data$INCOME16, useNA = "no"))
+
+# Display the probabilities
+print(income_probs)
+
+# Find indices of missing values
+missing_indices <- which(is.na(data$INCOME16))
+
+# Sample from the income categories based on the observed probabilities
+set.seed(42) # For reproducibility
+imputed_values <- sample(names(income_probs), length(missing_indices), replace = TRUE, prob = income_probs)
+
+# Impute the missing values
+data$INCOME16[missing_indices] <- imputed_values
+
+# Verify the imputation
+summary(data$INCOME16)
+```
+
+Doing some visualization
+```{r}
+# Visualize the distribution of INCOME16 with a bar plot
+ggplot(data, aes(x = INCOME16, fill = INCOME16)) +
+  geom_bar() +
+  labs(title = "Distribution of INCOME16", x = "Income Category", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Moving on to the respondent's income (RINCOM16)
+```{r}
+# Define the mapping of numeric values to income categories
+rincome_labels <- c(
+  "UNDER $1,000", "$1,000 to $2,999", "$3,000 to $3,999", "$4,000 to $4,999", "$5,000 to $5,999",
+  "$6,000 to $6,999", "$7,000 to $7,999", "$8,000 to $9,999", "$10,000 to $12,499", "$12,500 to $14,999",
+  "$15,000 to $17,499", "$17,500 to $19,999", "$20,000 to $22,499", "$22,500 to $24,999", "$25,000 to $29,999",
+  "$30,000 to $34,999", "$35,000 to $39,999", "$40,000 to $49,999", "$50,000 to $59,999", "$60,000 to $74,999",
+  "$75,000 to $89,999", "$90,000 to $109,999", "$110,000 to $129,999", "$130,000 to $149,999", "$150,000 to $169,999",
+  "$170,000 or over", "Refused", "Don't know", "No answer", "Not Applicable"
+)
+
+# Replace the numeric values with descriptions
+data$RINCOM16 <- factor(data$RINCOM16, levels = c(1:27, 98, 99, 0), labels = rincome_labels)
+
+# Verify the conversion
+print(levels(data$RINCOM16))
+```
+
+Let's examine further
+```{r}
+# Check the type of RINCOM16
+rincom16_type <- class(data$RINCOM16)
+print(paste("Type of RINCOM16:", rincom16_type))
+
+# Check for missing values in RINCOM16
+missing_rincom16 <- sum(is.na(data$RINCOM16))
+print(paste("Number of missing RINCOM16 values:", missing_rincom16))
+
+# Summary statistics for RINCOM16 (displaying counts for each category)
+summary_rincom16 <- summary(data$RINCOM16)
+print("Summary statistics for RINCOM16:")
+print(summary_rincom16)
+```
+
+Let's impute the NAs based on prob
+```{r}
+
+# Calculate the observed probabilities of each income category
+rincom_probs <- prop.table(table(data$RINCOM16, useNA = "no"))
+
+# Display the probabilities
+print(rincom_probs)
+
+# Find indices of missing values
+missing_indices <- which(is.na(data$RINCOM16))
+
+# Sample from the income categories based on the observed probabilities
+set.seed(42) # For reproducibility
+imputed_values <- sample(names(rincom_probs), length(missing_indices), replace = TRUE, prob = rincom_probs)
+
+# Impute the missing values
+data$RINCOM16[missing_indices] <- imputed_values
+
+# Verify the imputation
+summary(data$RINCOM16)
+```
+
+Visualization
+```{r}
+
+# Visualize the distribution of RINCOM16 with a bar plot
+ggplot(data, aes(x = RINCOM16, fill = RINCOM16)) +
+  geom_bar() +
+  labs(title = "Distribution of RINCOM16", x = "Income Category", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+
+
+
+
+
 
 
 
