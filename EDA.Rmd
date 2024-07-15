@@ -1,6 +1,8 @@
 ---
 title: "EDA"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 date: "2024-07-07"
 ---
 
@@ -1243,27 +1245,45 @@ stargazer(ols1,
 
 
 ```{r}
-ols1 = lm(
-  MNTLHLTH
-  ~ BORN
-  + REGION
-  + WRKSTAT  # LABOR FORCE STATUS
-  + HRS1     # NUMBER OF HOURS WORKED LAST WEEK
-  + INCOME16 # TOTAL FAMILY INCOME
-  + RINCOM16 # Respondant's income
-  + flg_uses_specific_sns
-  + nr_unique_specific_sns
-  + total_internet_time*flg_is_male*flg_is_white
-  + SNSMYEAR # SNSMYEAR
-  + HOMPOP
-  + HEALTH1
-  , data=data)
+# Basic Model with Demographic and Socioeconomic Variables
+model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+             + flg_uses_specific_sns 
+             + total_internet_time
+             + WRKSTAT
+             + HRS1
+             + REGION
+             + CHILDS
+             + PAEDUC
+             + MAEDUC
+             #+ SEXSEX_FACTOR
+             #+ PRES16_FACTOR
+             + HOMPOP
+             + EDUC
+             + SPWRKSTA
+             + MARITAL
+             + SEX 
+             + RACE 
+             + RINCOM16
+             + INCOME16
+             + EDUC 
+             + REGION, data = data)
 
-stargazer(ols1,
+
+stargazer(model1,
           type="text",
           single.row = TRUE,
           header = FALSE,
           title = "Simple regression - No changes")
 ```
+
+
+nr_unique_specific_sns 
+flg_uses_specific_sns 
+total_internet_time
+
+
+
+
+
 
 
