@@ -52,8 +52,17 @@ After inspecting the variables of the codebook, it became clear to us that we co
 ```{r}
 # Filtering data for only 2016
 data <- raw_data %>%
-  filter(YEAR == 2016)
+  filter(YEAR == 2016 & AGE >= 16)
 ```
+
+Explore AGE variable
+```{r}
+ggplot(raw_data, aes(x = AGE)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Hours", y = "Count") +
+  theme_minimal()
+```
+
 
 There are hundreads of variables in the dataset. However, several of them are not available in the 2016 dataset. Therefore, we will inspect the variables avaiable were at least 40% of the data is present.
 
@@ -1172,6 +1181,10 @@ print("Unique values of SEXSEX:")
 print(unique_sexsex)
 ```
 We do conversions
+
+NEEDS TO BE REVIEWED - Something like
+data$flg_is_straight <- ifelse(data$SEX != data$SEXSEX, 1, 0)
+
 ```{r}
 # Convert SEXSEX to a factor using haven::as_factor
 data$SEXSEX_FACTOR <- haven::as_factor(data$SEXSEX)
@@ -1211,38 +1224,14 @@ print(paste("Number of 'NA' values:", missing_values))
 print(paste("Number of 'Don't Know' (DK) values:", dk_values))
 ```
 
-
-
-
-# Modeling
-
+Creating binary flag for the respondants gender
 ```{r}
 data$flg_is_male <- ifelse(data$SEX == 1,1,0)
 ```
 
+Creating the 
 
-```{r}
-ols1 = lm(
-  MNTLHLTH  
-  ~ BORN
-  + REGION
-  + WRKSTAT  # LABOR FORCE STATUS
-  + HRS1     # NUMBER OF HOURS WORKED LAST WEEK
-  + INCOME16 # TOTAL FAMILY INCOME
-  + RINCOM16 # Respondant's income
-  + SNSMOTH1 # DO YOU USE ANY OTHER SOCIAL NETWORKS
-  + total_internet_time*flg_is_male*flg_is_white
-  + flg_uses_specific_sns
-  + nr_unique_specific_sns
-  , data=data)
-
-stargazer(ols1,
-          type="text",
-          single.row = TRUE,
-          header = FALSE,
-          title = "Simple regression - No changes")
-```
-
+# Modeling
 
 ```{r}
 # Comprehensive Model with Demographic and Socioeconomic Variables
@@ -1277,7 +1266,7 @@ stargazer(main_model,
 ```
 
 
-Model 1
+## Model 1
 ```{r}
 model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
              + flg_uses_specific_sns 
@@ -1311,7 +1300,7 @@ stargazer(model1,
 
 
 
-Model 2
+## Model 2
 ```{r}
 model2 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
              + flg_uses_specific_sns 
@@ -1344,7 +1333,7 @@ stargazer(model2,
 
 
 
-Model 3
+## Model 3
 ```{r}
 model3 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
              + flg_uses_specific_sns 
@@ -1379,7 +1368,7 @@ stargazer(model3,
 
 
 
-Model 4
+## Model 4
 ```{r}
 model4 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
              + flg_uses_specific_sns 
@@ -1411,7 +1400,7 @@ stargazer(model4,
 
 
 
-Model 5
+## Model 5
 ```{r}
 model5 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
              + flg_uses_specific_sns 
@@ -1459,7 +1448,7 @@ formula(stepwise_model)
 ```
 
 
-Multicollinearity checks
+## Multicollinearity checks
 ```{r}
 library(car)
 # Calculate VIF
@@ -1469,7 +1458,7 @@ vif_values <- vif(main_model)
 print(vif_values)
 ```
 
-Model after vif 1
+## Model after vif 1
 ```{r}
 # Create interaction terms for EDUC, PAEDUC, and MAEDUC
 data$EDUC_PAEDUC <- interaction(data$EDUC, data$PAEDUC)
@@ -1483,14 +1472,14 @@ vif_model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns
                         + WRKSTAT
                         + HRS1
                         + EDUC_PAEDUC
-                        + EDUC_MAEDUC
-                        + PAEDUC_MAEDUC
+                        + EDUC_MAEDUC   ## MERGE ALL PARENTS EDUC INTO 3 CATEGORIES
+                        + PAEDUC_MAEDUC ## MERGE ALL PARENTS EDUC INTO 3 CATEGORIES
                         + SEXSEX
                         + HOMPOP
                         + SPWRKSTA
                         + MARITAL
-                        + SEX 
-                        + RACE 
+                        + SEX  ## REPLACE BY THE FLAGS
+                        + RACE ## REPLACE BY THE FLAGS
                         + RINCOM16, data = data)
 
 stargazer(vif_model1,
