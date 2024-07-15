@@ -1,8 +1,8 @@
 ---
 title: "EDA"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 date: "2024-07-07"
 ---
 
@@ -1389,23 +1389,6 @@ stargazer(model5,
           title = "Regression")
 ```
 
-
-AIC model
-```{r}
-library("MASS")
-
-# Perform stepwise selection based on AIC
-stepwise_model <- stepAIC(main_model, direction = "both", trace = FALSE)
-
-stargazer(stepwise_model,
-          type="text",
-          single.row = TRUE,
-          header = FALSE,
-          title = "Regression")
-
-# Print the formula of the selected model
-formula(stepwise_model)
-```
 
 
 ## Multicollinearity checks
