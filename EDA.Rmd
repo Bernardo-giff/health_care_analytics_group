@@ -289,6 +289,51 @@ data$nr_unique_specific_sns <- data$flg_uses_facebook + data$flg_uses_instagram 
 data$flg_uses_specific_sns <- ifelse(data$nr_unique_specific_sns > 0 , 1, 0)
 ```
 
+## Income
+
+Next, we will look into the income variables. The RINCOM16 variables records the income level of the respondent. There are many missing values.
+```{r}
+ggplot(data, aes(x = RINCOM16)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Yearly income", y = "Count") +
+  theme_minimal()
+```
+
+We then imput the missing values by the mean. This creates the following distribution.
+```{r}
+# Calculate the mean of the non-missing values
+mean_income <- mean(data$RINCOM16, na.rm = TRUE)
+
+# Replace NA values with the calculated mean
+data$RINCOM16[is.na(data$RINCOM16)] <- mean_income
+
+ggplot(data, aes(x = RINCOM16)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Yearly income", y = "Count") +
+  theme_minimal()
+```
+We repeat the same process for the household income:
+
+```{r}
+ggplot(data, aes(x = INCOME16)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Yearly income", y = "Count") +
+  theme_minimal()
+```
+In this case, there weren't so many missing values. We will try both variables in the regression but likely only keep the household one.
+```{r}
+# Calculate the mean of the non-missing values
+mean_income <- mean(data$INCOME16, na.rm = TRUE)
+
+# Replace NA values with the calculated mean
+data$INCOME16[is.na(data$INCOME16)] <- mean_income
+
+ggplot(data, aes(x = INCOME16)) +
+  geom_histogram(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of minutes of internet usage per weekday", x = "Yearly income", y = "Count") +
+  theme_minimal()
+```
+
 #EDA (New)
 
 Let's quickly have a look at ID and make sure there are no duplicates/NAs
@@ -1495,7 +1540,6 @@ stargazer(vif_model1,
           title = "Regression")
 
 ```
-
 
 
 
