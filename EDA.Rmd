@@ -11,11 +11,6 @@ date: "2024-07-07"
 This first chunk installs necessary packages. In the next code chunk, you will find the command to change the working directory. After you clone your repo, you will need to run this command ONCE. Do not push this change! Better to do it on the console and not change this code block
 
 ```{r}
-# This command sets the wd for the R project
-```
-
-
-```{r}
 #setwd("/Users/h.abdulla/Dropbox/Mac (3)/Desktop/Imperial/Modules/Y2/Term 3/Healthcare Analytics/Group Assignment/Healthcare Project")
 # This is Bernardos' wd. Left it commented
 #setwd("/Users/bernardocarvalho/Desktop/imperial_repos/health_care_analytics_group")
@@ -47,7 +42,7 @@ file = "gss_spss_with_codebook/GSS7218_R3.sav"
 raw_data <- read_sav(file)
 ```
 
-After inspecting the variables of the codebook, it became clear to us that we could only use the wave from 2016. Although some of the respondants can be repeated through waves, it is a random sample. Therefore, we will filter the data by the year 2026.
+After inspecting the variables of the codebook, it became clear to us that we could only use the wave from 2016. Although some of the respondants can be repeated through waves, it is a random sample. Therefore, we will filter the data by the year 2026. Since we are focusing on mental health, we are also removing all respondents younger than 16.
 
 ```{r}
 # Filtering data for only 2016
@@ -173,12 +168,6 @@ ggplot(data, aes(x = MNTLHLTH)) +
 We start our exploration by looking at the amount of minutes spent on internet. We want to understand if that is a complement to the hoursof internet usage. We start by plotting the histogram:
 
 ```{r}
-
-#    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
-#    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
-#    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
-#    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
-
 ggplot(data, aes(x = INTWKDYM)) +
   geom_histogram(fill = "skyblue", color = "black") +
   labs(title = "Distribution of minutes of internet usage per weekday", x = "Minutes", y = "Count") +
@@ -187,12 +176,6 @@ ggplot(data, aes(x = INTWKDYM)) +
 Same for weekends
 
 ```{r}
-
-#    , INTWKDYM #  MINUTES OF INTERNET USE ON WEEKDAYS
-#    , INTWKDYH #  HOURS OF INTERNET USE ON WEEKDAYS
-#    , INTWKENM #  MINUTES OF INTERNET USE ON WEEKENDS
-#    , INTWKENH #  HOURS OF INTERNET USE ON WEEKENDS
-
 ggplot(data, aes(x = INTWKENM)) +
   geom_histogram(fill = "skyblue", color = "black") +
   labs(title = "Distribution of minutes of internet usage per weekday", x = "Minutes", y = "Count") +
