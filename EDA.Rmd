@@ -89,6 +89,8 @@ By inspecting the codebook, we selected the following variables to take a closed
 ```{r}
 # Selecting candidate variables
 
+# Selecting candidate variables
+
 data <- data %>%
   select(
     # First, start with Mental health related variables
@@ -114,8 +116,8 @@ data <- data %>%
     , HRS1     # NUMBER OF HOURS WORKED LAST WEEK
     # , HRS2     # NUMBER OF HOURS USUALLY WORK A WEEK
     #, COMMUTE  # TRAVEL TIME TO WORK
-     
-     # Social
+    , 
+    , # Social
     , SEX      # RESPONDENTS SEX
     , RACE     # RACE OF RESPONDENT
     , BORN     # WAS R BORN IN THIS COUNTRY
