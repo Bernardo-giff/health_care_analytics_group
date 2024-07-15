@@ -908,10 +908,119 @@ ggplot(data, aes(x = RINCOM16, fill = RINCOM16)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
+Let's look at CHILDS
+```{r}
+# Check the type of CHILDS
+childs_type <- class(data$CHILDS)
+print(paste("Type of CHILDS:", childs_type))
+
+# Check for missing values in CHILDS
+missing_childs <- sum(is.na(data$CHILDS))
+print(paste("Number of missing CHILDS values:", missing_childs))
+
+# Summary statistics for CHILDS
+summary_childs <- summary(data$CHILDS)
+print("Summary statistics for CHILDS:")
+print(summary_childs)
+
+# Display unique values in CHILDS
+unique_childs <- unique(data$CHILDS)
+print("Unique values of CHILDS:")
+print(unique_childs)
+
+```
+```{r}
+# Remove rows with NAs in CHILDS
+data <- data[!is.na(data$CHILDS), ]
+
+# Verify the removal
+summary(data$CHILDS)
 
 
+# Convert CHILDS to a factor for better visualization
+data$CHILDS <- factor(data$CHILDS, levels = c(0:8, 9), labels = c("0", "1", "2", "3", "4", "5", "6", "7", "8 or more", "DK/NA"))
 
+# Visualize the distribution of CHILDS with a bar plot
+ggplot(data, aes(x = CHILDS, fill = CHILDS)) +
+  geom_bar() +
+  labs(title = "Distribution of CHILDS", x = "Number of Children", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+```
 
+Let's look at PAEDUC
+```{r}
+# Check the type of PAEDUC
+paeduc_type <- class(data$PAEDUC)
+print(paste("Type of PAEDUC:", paeduc_type))
+
+# Check for missing values in PAEDUC
+missing_paeduc <- sum(is.na(data$PAEDUC))
+print(paste("Number of missing PAEDUC values:", missing_paeduc))
+
+# Summary statistics for PAEDUC
+summary_paeduc <- summary(data$PAEDUC)
+print("Summary statistics for PAEDUC:")
+print(summary_paeduc)
+
+# Display unique values in PAEDUC
+unique_paeduc <- unique(data$PAEDUC)
+print("Unique values of PAEDUC:")
+print(unique_paeduc)
+
+```
+
+Make the necessary changes
+```{r}
+# Define the mapping of numeric values to education levels
+paeduc_labels <- c(
+  "No formal schooling", "1st grade", "2nd grade", "3rd grade", "4th grade",
+  "5th grade", "6th grade", "7th grade", "8th grade", "9th grade",
+  "10th grade", "11th grade", "12th grade", "1 year of college", "2 years of college",
+  "3 years of college", "4 years of college", "5 years of college", 
+  "6 years of college", "7 years of college", "8 years of college"
+)
+
+# Replace the numeric values with descriptions
+data$PAEDUC <- factor(data$PAEDUC, levels = c(0:20, 97, 98, 99), labels = c(paeduc_labels, "Not applicable", "Don't know", "No answer"))
+
+# Verify the conversion
+print(levels(data$PAEDUC))
+```
+
+Handle missing values by imputing based on prob
+```{r}
+# Calculate the observed probabilities of each education level
+paeduc_probs <- prop.table(table(data$PAEDUC, useNA = "no"))
+
+# Display the probabilities
+print(paeduc_probs)
+
+# Find indices of missing values
+missing_indices_paeduc <- which(is.na(data$PAEDUC))
+
+# Sample from the education levels based on the observed probabilities
+set.seed(42) # For reproducibility
+imputed_values_paeduc <- sample(names(paeduc_probs), length(missing_indices_paeduc), replace = TRUE, prob = paeduc_probs)
+
+# Impute the missing values
+data$PAEDUC[missing_indices_paeduc] <- imputed_values_paeduc
+
+# Verify the imputation
+summary(data$PAEDUC)
+```
+
+Visualization
+```{r}
+
+# Visualize the distribution of PAEDUC with a bar plot
+ggplot(data, aes(x = PAEDUC, fill = PAEDUC)) +
+  geom_bar() +
+  labs(title = "Distribution of PAEDUC", x = "Father's Education Level", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
 
 
 
