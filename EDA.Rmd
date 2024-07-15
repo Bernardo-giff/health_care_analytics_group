@@ -1499,13 +1499,6 @@ stargazer(vif_model1,
           header = FALSE,
           title = "Regression")
 
-# Check VIF values for the vif_model1
-vif_of_interaction_model <- vif(vif_model1)
-print(vif_of_interaction_model)
-
-
-
-
 ```
 
 
