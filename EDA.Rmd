@@ -589,41 +589,57 @@ ggplot(data, aes(y = HOMPOP)) +
 Moving on to EDUC, we have the following.
 ```{r}
 # Check the type of EDUC
-#educ_type <- typeof(data$EDUC)
-#print(paste("Type of EDUC:", educ_type))
+educ_type <- typeof(data$EDUC)
+print(paste("Type of EDUC:", educ_type))
 
 # Check for missing values in EDUC
-#missing_educ <- sum(is.na(data$EDUC))
-#print(paste("Number of missing EDUC values:", missing_educ))
+missing_educ <- sum(is.na(data$EDUC))
+print(paste("Number of missing EDUC values:", missing_educ))
 
-# Show labels of EDUC
-#educ_labels <- attr(data$EDUC, "labels")
-#print("Labels for EDUC:")
-#print(educ_labels)
+# Summary statistics for EDUC
+summary(data$EDUC)
+
+# Check unique values of EDUC
+unique_educ_values <- unique(data$EDUC)
+print("Unique values of EDUC:")
+print(unique_educ_values)
+```
+Checking obs under each unique value
+```{r}
+# Count the number of observations for each unique value in EDUC
+educ_counts <- table(data$EDUC)
+print("Counts of each unique value in EDUC:")
+print(educ_counts)
+
 ```
 
+Making the right conversions.
 ```{r}
 # Define the mapping of numeric values to education levels
-#education_levels <- c(
-  "No formal schooling", "1st grade", "2nd grade", "3rd grade", "4th grade",
-  "5th grade", "6th grade", "7th grade", "8th grade", "9th grade",
-  "10th grade", "11th grade", "12th grade", "1 year of college", "2 years",
-  "3 years", "4 years", "5 years", "6 years", "7 years", "8 years",
+education_levels <- c(
+  "1st grade", "2nd grade", "3rd grade", "4th grade", "5th grade",
+  "6th grade", "7th grade", "8th grade", "9th grade", "10th grade",
+  "11th grade", "12th grade", "1 year of college", "2 years of college",
+  "3 years of college", "4 years of college", "5 years of college", 
+  "6 years of college", "7 years of college", "8 years of college", 
   "Don't know", "No answer"
-#)
+)
 
 # Replace the numeric values with descriptions
-#data$EDUC <- factor(data$EDUC, levels = 0:20, labels = education_levels[1:21])
-#data$EDUC[data$EDUC == 98] <- "Don't know"
-#data$EDUC[data$EDUC == 99] <- "No answer"
+data$EDUC <- factor(data$EDUC, levels = c(1:20, 98, 99), labels = education_levels)
+
+# Verify the conversion
+print(levels(data$EDUC))
 
 # Visualize the distribution of EDUC with a bar plot
-#ggplot(data, aes(x = EDUC, fill = EDUC)) +
-  #geom_bar() +
-  #labs(title = "Distribution of EDUC", x = "Education Level", y = "Count") +
-  #theme_minimal() +
-  #scale_fill_brewer(palette = "Set3") +
-  #theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(data, aes(x = EDUC, fill = EDUC)) +
+  geom_bar() +
+  labs(title = "Distribution of EDUC", x = "Education Level", y = "Count") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
 ```
 
 Looking at Spouse's level of education
