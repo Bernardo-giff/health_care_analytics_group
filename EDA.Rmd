@@ -1299,7 +1299,7 @@ model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns
              + REGION
              + PAEDUC * MAEDUC, data = data)
 
-
+summary(model1)
 
 stargazer(model1,
           type="text",
@@ -1459,7 +1459,54 @@ formula(stepwise_model)
 ```
 
 
+Multicollinearity checks
+```{r}
+library(car)
+# Calculate VIF
+vif_values <- vif(main_model)
+ 
+# Print the VIF values
+print(vif_values)
+```
 
+Model after vif 1
+```{r}
+# Create interaction terms for EDUC, PAEDUC, and MAEDUC
+data$EDUC_PAEDUC <- interaction(data$EDUC, data$PAEDUC)
+data$EDUC_MAEDUC <- interaction(data$EDUC, data$MAEDUC)
+data$PAEDUC_MAEDUC <- interaction(data$PAEDUC, data$MAEDUC)
+
+# Fit the model with interaction terms
+vif_model1 <- lm(MNTLHLTH ~ nr_unique_specific_sns 
+                        + flg_uses_specific_sns 
+                        + total_internet_time
+                        + WRKSTAT
+                        + HRS1
+                        + EDUC_PAEDUC
+                        + EDUC_MAEDUC
+                        + PAEDUC_MAEDUC
+                        + SEXSEX
+                        + HOMPOP
+                        + SPWRKSTA
+                        + MARITAL
+                        + SEX 
+                        + RACE 
+                        + RINCOM16, data = data)
+
+stargazer(vif_model1,
+          type="text",
+          single.row = TRUE,
+          header = FALSE,
+          title = "Regression")
+
+# Check VIF values for the vif_model1
+vif_of_interaction_model <- vif(vif_model1)
+print(vif_of_interaction_model)
+
+
+
+
+```
 
 
 
